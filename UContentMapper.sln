@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UContentMapper.Extensions",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UContentMapper.Umbraco15", "UContentMapper.Umbraco15\UContentMapper.Umbraco15.csproj", "{15B7693A-0F5B-499D-8F9C-179AEAF0B065}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UContentMapper.Tests", "UContentMapper.Tests\UContentMapper.Tests.csproj", "{558CFD92-AA9F-4BDA-A3A9-8A09F446BCB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{15B7693A-0F5B-499D-8F9C-179AEAF0B065}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15B7693A-0F5B-499D-8F9C-179AEAF0B065}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15B7693A-0F5B-499D-8F9C-179AEAF0B065}.Release|Any CPU.Build.0 = Release|Any CPU
+		{558CFD92-AA9F-4BDA-A3A9-8A09F446BCB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{558CFD92-AA9F-4BDA-A3A9-8A09F446BCB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{558CFD92-AA9F-4BDA-A3A9-8A09F446BCB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{558CFD92-AA9F-4BDA-A3A9-8A09F446BCB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
