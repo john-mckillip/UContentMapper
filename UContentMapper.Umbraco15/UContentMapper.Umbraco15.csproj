@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UContentMapper.Core\UContentMapper.Core.csproj" />
-    <ProjectReference Include="..\UContentMapper.Extensions\UContentMapper.Extensions.csproj" />
   </ItemGroup>
 
 </Project>
