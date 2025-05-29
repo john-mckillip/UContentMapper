@@ -1,4 +1,4 @@
-﻿namespace UContentMapper.Umbraco15.Models
+﻿namespace UContentMapper.Core.Models.Content
 {
     /// <summary>
     /// Base model that all content models inherit from

@@ -1,9 +1,11 @@
-﻿namespace UContentMapper.Umbraco15.Models
+﻿using UContentMapper.Core.Models.Content;
+
+namespace UContentMapper.Umbraco15.Models
 {
     /// <summary>
     /// Base SEO model for content that has SEO properties
     /// </summary>
-    public abstract class BaseSeoModel
+    public abstract class BaseSeoModel : BaseContentModel
     {
         public string? MetaTitle { get; set; }
         public string? MetaDescription { get; set; }
