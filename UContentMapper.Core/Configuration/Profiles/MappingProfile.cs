@@ -6,7 +6,7 @@ namespace UContentMapper.Core.Configuration.Profiles
     {
         protected IMappingConfiguration Configuration { get; private set; }
 
-        internal void Initialize(IMappingConfiguration configuration)
+        public void Initialize(IMappingConfiguration configuration)
         {
             Configuration = configuration;
         }
