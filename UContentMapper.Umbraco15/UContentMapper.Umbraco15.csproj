@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Umbraco.Cms.Core" Version="15.4.1">
+	  <PackageReference Include="Umbraco.Cms.Core" Version="15.4.2">
 		  <PrivateAssets>all</PrivateAssets>
 		  <ExcludeAssets>runtime; build; native; contentfiles; analyzers</ExcludeAssets>
 		  <IncludeAssets>compile</IncludeAssets>
 	  </PackageReference>
-	  <PackageReference Include="Umbraco.Cms.Web.Common" Version="15.4.1">
+	  <PackageReference Include="Umbraco.Cms.Web.Common" Version="15.4.2">
 		  <PrivateAssets>all</PrivateAssets>
 		  <ExcludeAssets>runtime; build; native; contentfiles; analyzers</ExcludeAssets>
 		  <IncludeAssets>compile</IncludeAssets>
