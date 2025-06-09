@@ -1,6 +1,5 @@
 ﻿using UContentMapper.Core.Configuration.Profiles;
 using UContentMapper.Core.Models.Content;
-using UContentMapper.Umbraco15.Models;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Extensions;

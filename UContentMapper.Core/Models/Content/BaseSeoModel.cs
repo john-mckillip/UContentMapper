@@ -1,6 +1,4 @@
-﻿using UContentMapper.Core.Models.Content;
-
-namespace UContentMapper.Umbraco15.Models
+﻿namespace UContentMapper.Core.Models.Content
 {
     /// <summary>
     /// Base SEO model for content that has SEO properties

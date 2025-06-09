@@ -34,11 +34,11 @@ namespace UContentMapper.Umbraco15.Extensions
 
             // Configure the mapping profile from the Umbraco15 assembly
             services.AddSingleton<UmbracoMappingProfile>();
-            services.AddSingleton(sp => {
-                var config = sp.GetRequiredService<IMappingConfiguration>();
-                config.AddMappingProfiles(typeof(UmbracoMappingProfile).Assembly);
-                return config;
-            });
+            //services.AddSingleton(sp => {
+            //    var config = sp.GetRequiredService<IMappingConfiguration>();
+            //    config.AddMappingProfiles(typeof(UmbracoMappingProfile).Assembly);
+            //    return config;
+            //});
 
             return services;
         }

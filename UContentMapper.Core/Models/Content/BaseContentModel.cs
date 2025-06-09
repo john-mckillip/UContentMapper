@@ -7,10 +7,10 @@
     {
         public int Id { get; set; }
         public Guid Key { get; set; }
-        public required string Name { get; set; }
-        public required string ContentTypeAlias { get; set; }
-        public required string Url { get; set; }
-        public required string AbsoluteUrl { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string ContentTypeAlias { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string AbsoluteUrl { get; set; } = string.Empty;
         public DateTime CreateDate { get; set; }
         public DateTime UpdateDate { get; set; }
         public int Level { get; set; }
