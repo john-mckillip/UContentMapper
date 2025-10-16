@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura,lcov,opencover</Format>
+          <Exclude>
+            [*.Tests]*
+            [*]System.*
+            [AutoFixture]*
+            [Moq]*
+            [FluentAssertions]*
+          </Exclude>
+          <ExcludeByFile>
+            **/Migrations/*.cs
+            **/TestHelpers/*.cs
+            **/Mocks/*.cs
+            **/Fixtures/*.cs
+          </ExcludeByFile>
+          <Include>
+            [UContentMapper.Core]*
+            [UContentMapper.Umbraco15]*
+            [UContentMapper.Extensions]*
+          </Include>
+          <IncludeDirectory>
+            ../UContentMapper.Core/
+            ../UContentMapper.Umbraco15/
+            ../UContentMapper.Extensions/
+          </IncludeDirectory>
+          <SingleHit>false</SingleHit>
+          <UseSourceLink>true</UseSourceLink>
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+          <SkipAutoProps>true</SkipAutoProps>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
