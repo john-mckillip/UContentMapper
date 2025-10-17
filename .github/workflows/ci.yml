@@ -49,9 +49,9 @@ jobs:
           --results-directory ./TestResults \
           --logger "trx;LogFileName=test-results.trx" \
           --verbosity normal \
-          /p:CollectCoverage=true \
-          /p:CoverletOutputFormat=cobertura,opencover,json \
-          /p:CoverletOutput=./TestResults/coverage \
+          -- /p:CollectCoverage=true \
+          /p:CoverletOutputFormat=cobertura \
+          /p:CoverletOutput=./TestResults/coverage/ \
           /p:Threshold=90 \
           /p:ThresholdType=line,branch,method \
           /p:ThresholdStat=total
