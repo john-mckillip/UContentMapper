@@ -11,8 +11,17 @@ namespace UContentMapper.Umbraco15.Configuration
     /// </summary>
     public class UmbracoMappingProfile : BaseMappingProfile
     {
-        public UmbracoMappingProfile()
+        public UmbracoMappingProfile() : base()
         {
+            // Constructor is intentionally empty
+        }
+
+        public override void Configure()
+        {
+            // Call base configuration first
+            base.Configure();
+
+            // Then configure Umbraco-specific mappings
             ConfigureBaseContentMappings();
             ConfigureBaseElementMappings();
             ConfigureMediaMappings();

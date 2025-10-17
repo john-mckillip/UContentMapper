@@ -39,6 +39,8 @@ namespace UContentMapper.Umbraco15.Configuration
 
         public override IMappingConfiguration AddMappingProfiles(params Assembly[] assemblies)
         {
+            ArgumentNullException.ThrowIfNull(assemblies);
+
             var profileType = typeof(MappingProfile);
 
             foreach (var assembly in assemblies)

@@ -8,6 +8,7 @@ using UContentMapper.Tests.Mocks;
 using UContentMapper.Tests.TestHelpers;
 using UContentMapper.Umbraco15.Mapping;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Extensions;
 
 namespace UContentMapper.Tests.Unit.Umbraco15.Mapping;
 
@@ -170,17 +171,21 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithContentProperties_ShouldMapCustomProperties()
     {
         // Arrange
-        var properties = new Dictionary<string, object>
-        {
-            { "title", "Test Page Title" },
-            { "description", "Test Description" },
-            { "categoryid", 123 },
-            { "ispublished", true }
-        };
-        var content = MockPublishedContent.WithProperties(properties).Object;
+        var fallbackMock = new Mock<IPublishedValueFallback>();
+        var mock = MockPublishedContent.Create();
+        
+        // Set up properties
+        mock.Setup(x => x.HasProperty("title")).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, "title", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("Test Page Title");
+        mock.Setup(x => x.HasProperty("description")).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, "description", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("Test Description");
+        mock.Setup(x => x.HasProperty("categoryid")).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, "categoryid", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns(123);
+        mock.Setup(x => x.HasProperty("ispublished")).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, "ispublished", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns(true);
 
         // Act
-        var result = _mapper.Map(content);
+        var result = _mapper.Map(mock.Object);
 
         // Assert
         result.Title.Should().Be("Test Page Title");
@@ -193,15 +198,17 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithNullPropertyValues_ShouldSkipProperties()
     {
         // Arrange
-        var properties = new Dictionary<string, object>
-        {
-            { "title", null! },
-            { "description", "Valid Description" }
-        };
-        var content = MockPublishedContent.WithProperties(properties).Object;
+        var fallbackMock = new Mock<IPublishedValueFallback>();
+        var mock = MockPublishedContent.Create();
+        
+        // Set up properties
+        mock.Setup(x => x.HasProperty("title")).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, "title", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns(null);
+        mock.Setup(x => x.HasProperty("description")).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, "description", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("Valid Description");
 
         // Act
-        var result = _mapper.Map(content);
+        var result = _mapper.Map(mock.Object);
 
         // Assert
         result.Title.Should().Be(string.Empty); // Default value
@@ -232,11 +239,15 @@ public class UmbracoContentMapperTests : TestBase
             new FakeLogger<UmbracoContentMapper<TypeConversionTestModel>>());
         
         var propertyName = GetPropertyNameForType(targetType);
-        var properties = new Dictionary<string, object> { { propertyName.ToLowerInvariant(), sourceValue } };
-        var content = MockPublishedContent.WithProperties(properties).Object;
+        var fallbackMock = new Mock<IPublishedValueFallback>();
+        var mock = MockPublishedContent.Create();
+        
+        // Set up property
+        mock.Setup(x => x.HasProperty(propertyName.ToLowerInvariant())).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, propertyName.ToLowerInvariant(), It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns(sourceValue);
 
         // Act
-        var result = mapper.Map(content);
+        var result = mapper.Map(mock.Object);
 
         // Assert
         var property = typeof(TypeConversionTestModel).GetProperty(propertyName);
@@ -281,15 +292,17 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithPropertyMappingException_ShouldLogWarningAndContinue()
     {
         // Arrange
-        var properties = new Dictionary<string, object>
-        {
-            { "title", "Valid Title" },
-            { "categoryid", "invalid_number" } // This should cause conversion error
-        };
-        var content = MockPublishedContent.WithProperties(properties).Object;
+        var fallbackMock = new Mock<IPublishedValueFallback>();
+        var mock = MockPublishedContent.Create();
+        
+        // Set up properties - one valid, one that will cause conversion error
+        mock.Setup(x => x.HasProperty("title")).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, "title", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("Valid Title");
+        mock.Setup(x => x.HasProperty("categoryid")).Returns(true);
+        mock.Setup(x => x.Value(fallbackMock.Object, "categoryid", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("invalid_number");
 
         // Act
-        var result = _mapper.Map(content);
+        var result = _mapper.Map(mock.Object);
 
         // Assert
         result.Should().NotBeNull();
@@ -307,16 +320,17 @@ public class UmbracoContentMapperTests : TestBase
     {
         // Arrange
         var content = MockPublishedContent.Create().Object;
+        var abstractLogger = new FakeLogger<UmbracoContentMapper<AbstractTestModel>>();
         
         // Create a mapper that will fail during activation (simulate error)
-        var mapper = new UmbracoContentMapper<AbstractTestModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<AbstractTestModel>(_mappingConfigurationMock.Object, abstractLogger);
 
         // Act
         var act = () => mapper.Map(content);
 
         // Assert
         act.Should().Throw<Exception>();
-        _logger.Collector.GetSnapshot().Should().Contain(log => 
+        abstractLogger.Collector.GetSnapshot().Should().Contain(log => 
             log.Level == LogLevel.Error && 
             log.Message.Contains("Error mapping"));
     }

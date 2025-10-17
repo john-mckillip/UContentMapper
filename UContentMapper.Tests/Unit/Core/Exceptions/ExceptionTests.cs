@@ -7,25 +7,16 @@ namespace UContentMapper.Tests.Unit.Core.Exceptions;
 [TestFixture]
 public class ExceptionTests : TestBase
 {
+    #region ConfigurationException Tests
+    
     [Test]
-    public void ConfigurationException_ShouldInheritFromException()
+    public void ConfigurationException_ShouldInheritFromMappingException()
     {
         // Arrange & Act
-        var exception = new ConfigurationException();
+        var exception = new ConfigurationException("Test message");
 
         // Assert
-        exception.Should().BeAssignableTo<Exception>();
-    }
-
-    [Test]
-    public void ConfigurationException_ShouldHaveParameterlessConstructor()
-    {
-        // Arrange & Act
-        var exception = new ConfigurationException();
-
-        // Assert
-        exception.Should().NotBeNull();
-        exception.Message.Should().NotBeNullOrEmpty();
+        exception.Should().BeAssignableTo<MappingException>();
     }
 
     [Test]
@@ -42,39 +33,48 @@ public class ExceptionTests : TestBase
     }
 
     [Test]
-    public void ConfigurationException_ShouldHaveMessageAndInnerExceptionConstructor()
+    public void ConfigurationException_ShouldHaveMessageAndValidationErrorsConstructor()
     {
         // Arrange
         var message = "Configuration error occurred";
-        var innerException = new InvalidOperationException("Inner error");
+        var validationErrors = new List<string> { "Error 1", "Error 2" };
 
         // Act
-        var exception = new ConfigurationException(message, innerException);
+        var exception = new ConfigurationException(message, validationErrors);
 
         // Assert
         exception.Message.Should().Be(message);
-        exception.InnerException.Should().Be(innerException);
+        exception.ValidationErrors.Should().NotBeNull();
+        exception.ValidationErrors.Should().BeEquivalentTo(validationErrors);
     }
+
+    [Test]
+    public void ConfigurationException_ValidationErrorsCanBeNull()
+    {
+        // Arrange
+        var message = "Configuration error occurred";
+        var validationErrors = (IEnumerable<string>)null!;
+
+        // Act
+        var exception = new ConfigurationException(message, validationErrors);
+
+        // Assert
+        exception.Message.Should().Be(message);
+        exception.ValidationErrors.Should().BeNull();
+    }
+    
+    #endregion
+
+    #region MappingException Tests
 
     [Test]
     public void MappingException_ShouldInheritFromException()
     {
         // Arrange & Act
-        var exception = new MappingException();
+        var exception = new MappingException("Test message");
 
         // Assert
         exception.Should().BeAssignableTo<Exception>();
-    }
-
-    [Test]
-    public void MappingException_ShouldHaveParameterlessConstructor()
-    {
-        // Arrange & Act
-        var exception = new MappingException();
-
-        // Assert
-        exception.Should().NotBeNull();
-        exception.Message.Should().NotBeNullOrEmpty();
     }
 
     [Test]
@@ -104,55 +104,68 @@ public class ExceptionTests : TestBase
         exception.Message.Should().Be(message);
         exception.InnerException.Should().Be(innerException);
     }
+    
+    #endregion
+
+    #region PropertyMappingException Tests
 
     [Test]
     public void PropertyMappingException_ShouldInheritFromMappingException()
     {
         // Arrange & Act
-        var exception = new PropertyMappingException();
+        var exception = new PropertyMappingException(
+            "Property mapping error", 
+            "testProperty", 
+            typeof(string), 
+            "TestMember");
 
         // Assert
         exception.Should().BeAssignableTo<MappingException>();
     }
 
     [Test]
-    public void PropertyMappingException_ShouldHaveParameterlessConstructor()
-    {
-        // Arrange & Act
-        var exception = new PropertyMappingException();
-
-        // Assert
-        exception.Should().NotBeNull();
-        exception.Message.Should().NotBeNullOrEmpty();
-    }
-
-    [Test]
-    public void PropertyMappingException_ShouldHaveMessageConstructor()
+    public void PropertyMappingException_ShouldHaveAllRequiredParameters()
     {
         // Arrange
         var message = "Property mapping error occurred";
+        var propertyAlias = "testProperty";
+        var destinationType = typeof(string);
+        var memberName = "TestMember";
 
         // Act
-        var exception = new PropertyMappingException(message);
+        var exception = new PropertyMappingException(message, propertyAlias, destinationType, memberName);
 
         // Assert
         exception.Message.Should().Be(message);
+        exception.PropertyAlias.Should().Be(propertyAlias);
+        exception.DestinationType.Should().Be(destinationType);
+        exception.DestinationTypeName.Should().Be(destinationType.FullName);
+        exception.MemberName.Should().Be(memberName);
     }
 
     [Test]
-    public void PropertyMappingException_ShouldHaveMessageAndInnerExceptionConstructor()
+    public void PropertyMappingException_ShouldSupportStringBasedConstructor()
     {
         // Arrange
         var message = "Property mapping error occurred";
-        var innerException = new FormatException("Inner error");
+        var propertyAlias = "testProperty";
+        var destinationTypeName = "System.String";
+        var memberName = "TestMember";
 
         // Act
-        var exception = new PropertyMappingException(message, innerException);
+        var exception = new PropertyMappingException(message, propertyAlias, destinationTypeName, memberName);
 
         // Assert
         exception.Message.Should().Be(message);
-        exception.InnerException.Should().Be(innerException);
+        exception.PropertyAlias.Should().Be(propertyAlias);
+        exception.DestinationTypeName.Should().Be(destinationTypeName);
+        exception.DestinationType.Should().BeNull();
+        exception.MemberName.Should().Be(memberName);
     }
+
+    #endregion
+
+    #region Serialization Tests
 
     [Test]
     public void ConfigurationException_ShouldBeSerializable()
@@ -161,7 +174,7 @@ public class ExceptionTests : TestBase
         var exception = new ConfigurationException("Test message");
 
         // Act & Assert
-        exception.Should().BeBinarySerializable();
+        exception.Should().BeJsonSerializable<ConfigurationException>();
     }
 
     [Test]
@@ -171,28 +184,26 @@ public class ExceptionTests : TestBase
         var exception = new MappingException("Test message");
 
         // Act & Assert
-        exception.Should().BeBinarySerializable();
+        exception.Should().BeJsonSerializable<MappingException>();
     }
 
     [Test]
     public void PropertyMappingException_ShouldBeSerializable()
     {
         // Arrange
-        var exception = new PropertyMappingException("Test message");
+        var exception = new PropertyMappingException(
+            "Test message",
+            "testProperty",
+            "System.String",
+            "TestMember");
 
         // Act & Assert
-        exception.Should().BeBinarySerializable();
+        exception.Should().BeJsonSerializable<PropertyMappingException>();
     }
 
-    [Test]
-    public void ConfigurationException_ShouldHandleNullMessage()
-    {
-        // Arrange & Act
-        var exception = new ConfigurationException(null!);
+    #endregion
 
-        // Assert
-        exception.Message.Should().NotBeNull();
-    }
+    #region Edge Cases
 
     [Test]
     public void ConfigurationException_ShouldHandleEmptyMessage()
@@ -220,4 +231,6 @@ public class ExceptionTests : TestBase
         exception.Message.Should().Be(message);
         exception.InnerException.Should().BeNull();
     }
+    
+    #endregion
 }

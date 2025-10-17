@@ -7,20 +7,20 @@ namespace UContentMapper.Tests.Unit.Core.Models;
 [TestFixture]
 public class BaseElementModelTests : TestBase
 {
-    private BaseElementModel _model;
+    private ConcreteElementModel _model;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
-        _model = new BaseElementModel();
+        _model = new ConcreteElementModel { ContentTypeAlias = string.Empty };
     }
 
     [Test]
     public void BaseElementModel_ShouldHaveDefaultValues()
     {
         // Arrange & Act
-        var model = new BaseElementModel();
+        var model = new ConcreteElementModel { ContentTypeAlias = string.Empty };
 
         // Assert
         model.Key.Should().Be(Guid.Empty);
@@ -88,4 +88,10 @@ public class BaseElementModelTests : TestBase
         _model.Key.Should().Be(key);
         _model.ContentTypeAlias.Should().Be(contentTypeAlias);
     }
+}
+
+// Concrete implementation of BaseElementModel for testing
+public class ConcreteElementModel : BaseElementModel
+{
+    // No additional implementation needed
 }

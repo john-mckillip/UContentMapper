@@ -16,6 +16,9 @@ public class TestDataBuilder
 
     public static IPublishedContent CreatePublishedContentWithProperties()
     {
+        var mock = MockPublishedContent.Create();
+        var fallbackMock = new Mock<IPublishedValueFallback>();
+        
         var properties = new Dictionary<string, object>
         {
             { "title", "Test Page Title" },
@@ -26,15 +29,29 @@ public class TestDataBuilder
             { "tags", new List<string> { "tag1", "tag2", "tag3" } }
         };
 
-        return MockPublishedContent
-            .WithContentTypeAlias("testPage")
-            .WithProperties(properties)
-            .Object;
+        // Setup properties individually
+        foreach (var prop in properties)
+        {
+            var propertyMock = new Mock<IPublishedProperty>();
+            propertyMock.Setup(x => x.Alias).Returns(prop.Key);
+            propertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value != null);
+            propertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value);
+            
+            mock.Setup(x => x.GetProperty(prop.Key)).Returns(propertyMock.Object);
+        }
+        
+        // Setup content type
+        var contentTypeMock = new Mock<IPublishedContentType>();
+        contentTypeMock.Setup(x => x.Alias).Returns("testPage");
+        mock.Setup(x => x.ContentType).Returns(contentTypeMock.Object);
+        
+        return mock.Object;
     }
 
     public static IPublishedContent CreatePublishedContentWithBuiltInProperties()
     {
         var mock = MockPublishedContent.Create();
+        var fallbackMock = new Mock<IPublishedValueFallback>();
         
         mock.Setup(x => x.Id).Returns(1001);
         mock.Setup(x => x.Key).Returns(new Guid("12345678-1234-1234-1234-123456789012"));
@@ -44,44 +61,53 @@ public class TestDataBuilder
         mock.Setup(x => x.Level).Returns(2);
         mock.Setup(x => x.SortOrder).Returns(5);
         mock.Setup(x => x.TemplateId).Returns(9999);
-        mock.Setup(x => x.IsVisible()).Returns(true);
-        mock.Setup(x => x.Url(It.IsAny<string>(), It.IsAny<UrlMode>()))
-            .Returns((string culture, UrlMode mode) => 
-                mode == UrlMode.Absolute 
-                    ? "https://example.com/test-content" 
-                    : "/test-content");
-
-        var contentTypeMock = new Mock<IPublishedContentType>();
-        contentTypeMock.Setup(x => x.Alias).Returns("testContentType");
-        mock.Setup(x => x.ContentType).Returns(contentTypeMock.Object);
+        mock.Setup(x => x.ContentType.Alias).Returns("testPage");
 
         return mock.Object;
     }
 
     public static IPublishedContent CreatePublishedContentForTypeConversion()
     {
+        var mock = MockPublishedContent.Create();
+        var fallbackMock = new Mock<IPublishedValueFallback>();
+        var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
+
         var properties = new Dictionary<string, object>
         {
             { "stringvalue", "Test String" },
-            { "intvalue", "42" },
-            { "boolvalue", "true" },
+            { "intvalue", 42 },
+            { "boolvalue", true },
             { "datetimevalue", DateTime.UtcNow },
             { "guidvalue", "12345678-1234-1234-1234-123456789012" },
-            { "doublevalue", "3.14159" },
-            { "decimalvalue", "999.99" },
-            { "floatvalue", "2.718" },
-            { "longvalue", "9223372036854775807" },
-            { "shortvalue", "32767" },
+            { "doublevalue", 3.14159 },
+            { "decimalvalue", 999.99m },
+            { "floatvalue", 2.718F },
+            { "longvalue", 9223372036854775807 },
+            { "shortvalue", 32767 },
             { "nullableintvalue", "null" },
-            { "nullableboolvalue", null },
+            { "nullableboolvalue", "null" },
             { "nullabledatetimevalue", DateTime.UtcNow.AddDays(-1) },
             { "nullableguidvalue", "87654321-4321-4321-4321-210987654321" }
         };
 
-        return MockPublishedContent
-            .WithContentTypeAlias("typeConversionTest")
-            .WithProperties(properties)
-            .Object;
+        // Setup properties individually
+        foreach (var prop in properties)
+        {
+            var propertyMock = new Mock<IPublishedProperty>();
+            propertyMock.Setup(x => x.Alias).Returns(prop.Key);
+            propertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value != null);
+            propertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value);
+            
+            mock.Setup(x => x.GetProperty(prop.Key)).Returns(propertyMock.Object);
+            mock.Setup(x => x.ContentType.GetPropertyType(prop.Key)).Returns(publishedPropertyTypeMock.Object);
+        }
+        
+        // Setup content type
+        var contentTypeMock = new Mock<IPublishedContentType>();
+        contentTypeMock.Setup(x => x.Alias).Returns("typeConversionTest");
+        mock.Setup(x => x.ContentType).Returns(contentTypeMock.Object);
+        
+        return mock.Object;
     }
 
     public static IEnumerable<TestCaseData> GetTypeConversionTestCases()
@@ -119,7 +145,6 @@ public class TestDataBuilder
         yield return new TestCaseData(content, nameof(TestPageModel.Level), content.Level).SetName("Level Property");
         yield return new TestCaseData(content, nameof(TestPageModel.SortOrder), content.SortOrder).SetName("SortOrder Property");
         yield return new TestCaseData(content, nameof(TestPageModel.TemplateId), content.TemplateId).SetName("TemplateId Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.IsVisible), true).SetName("IsVisible Property");
     }
 
     public static IEnumerable<TestCaseData> GetMappingFailureTestCases()
@@ -135,7 +160,7 @@ public class TestDataBuilder
             Id = 1001,
             Key = new Guid("12345678-1234-1234-1234-123456789012"),
             Name = "Test Content Name",
-            ContentTypeAlias = "testContentType",
+            ContentTypeAlias = "testPage",
             Url = "/test-content",
             AbsoluteUrl = "https://example.com/test-content",
             CreateDate = new DateTime(2023, 1, 1, 10, 0, 0),

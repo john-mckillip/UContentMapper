@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using UContentMapper.Core.Abstractions.Configuration;
 using UContentMapper.Core.Abstractions.Mapping;
 using UContentMapper.Umbraco15.Configuration;
@@ -16,29 +17,32 @@ namespace UContentMapper.Umbraco15.Extensions
         /// </summary>
         public static IServiceCollection AddUContentMapper(this IServiceCollection services)
         {
+            // Use TryAdd methods to ensure services are only registered once
+
             // Register the main mapping configuration
-            services.AddSingleton<IMappingConfiguration, UmbracoMappingConfiguration>();
+            services.TryAddSingleton<IMappingConfiguration, UmbracoMappingConfiguration>();
 
             // Register generic mappers
-            services.AddTransient(typeof(IContentMapper<>), typeof(UmbracoContentMapper<>));
+            services.TryAddTransient(typeof(IContentMapper<>), typeof(UmbracoContentMapper<>));
 
             // Register common type converters
-            services.AddTransient<PublishedContentToUrlConverter>();
-            services.AddTransient<PublishedContentToMediaWithCropsConverter>();
-            services.AddTransient<MediaWithCropsToUrlConverter>();
+            services.TryAddTransient<PublishedContentToUrlConverter>();
+            services.TryAddTransient<PublishedContentToMediaWithCropsConverter>();
+            services.TryAddTransient<MediaWithCropsToUrlConverter>();
 
             // Register value resolvers
-            services.AddTransient<PublishedContentUrlResolver>();
-            services.AddTransient(typeof(MediaPropertyResolver<>));
-            services.AddTransient<MediaItemResolver>();
+            services.TryAddTransient<PublishedContentUrlResolver>();
+            services.TryAddTransient(typeof(MediaPropertyResolver<>));
+            services.TryAddTransient<MediaItemResolver>();
 
             // Configure the mapping profile from the Umbraco15 assembly
-            services.AddSingleton<UmbracoMappingProfile>();
-            //services.AddSingleton(sp => {
-            //    var config = sp.GetRequiredService<IMappingConfiguration>();
-            //    config.AddMappingProfiles(typeof(UmbracoMappingProfile).Assembly);
-            //    return config;
-            //});
+            services.TryAddSingleton(serviceProvider =>
+            {
+                var config = serviceProvider.GetRequiredService<IMappingConfiguration>();
+                var profile = new UmbracoMappingProfile();
+                profile.Initialize(config);
+                return profile;
+            });
 
             return services;
         }

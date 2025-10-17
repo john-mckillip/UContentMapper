@@ -90,36 +90,36 @@ public class AttributeTests : TestBase
     }
 
     [Test]
-    public void MapFromAttribute_ShouldAllowSettingPropertyName()
+    public void MapFromAttribute_ShouldAllowSettingPropertyAlias()
     {
         // Arrange
-        var propertyName = "customPropertyName";
+        var propertyAlias = "customPropertyName";
 
         // Act
-        var attribute = new MapFromAttribute(propertyName);
+        var attribute = new MapFromAttribute(propertyAlias);
 
         // Assert
-        attribute.PropertyName.Should().Be(propertyName);
+        attribute.PropertyAlias.Should().Be(propertyAlias);
     }
 
     [Test]
-    public void MapFromAttribute_ShouldHandleEmptyPropertyName()
+    public void MapFromAttribute_ShouldHandleEmptyPropertyAlias()
     {
         // Arrange & Act
         var attribute = new MapFromAttribute("");
 
         // Assert
-        attribute.PropertyName.Should().Be("");
+        attribute.PropertyAlias.Should().Be("");
     }
 
     [Test]
-    public void MapFromAttribute_ShouldHandleNullPropertyName()
+    public void MapFromAttribute_ShouldHandleNullPropertyAlias()
     {
         // Arrange & Act
         var attribute = new MapFromAttribute(null!);
 
         // Assert
-        attribute.PropertyName.Should().BeNull();
+        attribute.PropertyAlias.Should().BeNull();
     }
 
     [Test]

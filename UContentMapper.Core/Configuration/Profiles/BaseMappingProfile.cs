@@ -7,8 +7,20 @@ namespace UContentMapper.Core.Configuration.Profiles
     /// </summary>
     public class BaseMappingProfile : MappingProfile
     {
+        private bool _initialized = false;
+
         public BaseMappingProfile()
         {
+            // Don't configure mappings in constructor
+        }
+
+        public override void Configure()
+        {
+            if (_initialized)
+                return;
+
+            _initialized = true;
+
             ConfigureStringConversions();
             ConfigureNumericConversions();
             ConfigureDateTimeConversions();

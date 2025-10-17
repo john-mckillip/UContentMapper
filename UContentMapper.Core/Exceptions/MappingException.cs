@@ -1,7 +1,10 @@
-﻿namespace UContentMapper.Core.Exceptions
+﻿using System.Text.Json.Serialization;
+
+namespace UContentMapper.Core.Exceptions
 {
     public class MappingException : Exception
     {
+        [JsonConstructor]
         public MappingException(string message) : base(message)
         {
         }

@@ -71,7 +71,8 @@ public class MappingConfigurationBaseTests : TestBase
         var metadata = new TypeMappingMetadata
         {
             SourceType = typeof(string),
-            DestinationType = typeof(int)
+            DestinationType = typeof(int),
+            ContentTypeAlias = string.Empty
         };
 
         // Act
@@ -88,8 +89,8 @@ public class MappingConfigurationBaseTests : TestBase
         // Arrange
         var typePair1 = new TypePair(typeof(string), typeof(int));
         var typePair2 = new TypePair(typeof(double), typeof(bool));
-        var metadata1 = new TypeMappingMetadata { SourceType = typeof(string), DestinationType = typeof(int) };
-        var metadata2 = new TypeMappingMetadata { SourceType = typeof(double), DestinationType = typeof(bool) };
+        var metadata1 = new TypeMappingMetadata { SourceType = typeof(string), DestinationType = typeof(int), ContentTypeAlias = string.Empty };
+        var metadata2 = new TypeMappingMetadata { SourceType = typeof(double), DestinationType = typeof(bool), ContentTypeAlias = string.Empty };
 
         // Act
         _configuration.AddTypeMap(typePair1, metadata1);
@@ -106,8 +107,8 @@ public class MappingConfigurationBaseTests : TestBase
     {
         // Arrange
         var typePair = new TypePair(typeof(string), typeof(int));
-        var metadata1 = new TypeMappingMetadata { SourceType = typeof(string), DestinationType = typeof(int) };
-        var metadata2 = new TypeMappingMetadata { SourceType = typeof(string), DestinationType = typeof(int) };
+        var metadata1 = new TypeMappingMetadata { SourceType = typeof(string), DestinationType = typeof(int), ContentTypeAlias = string.Empty };
+        var metadata2 = new TypeMappingMetadata { SourceType = typeof(string), DestinationType = typeof(int), ContentTypeAlias = string.Empty };
 
         // Act
         _configuration.AddTypeMap(typePair, metadata1);

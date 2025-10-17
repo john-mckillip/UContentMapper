@@ -9,6 +9,12 @@ namespace UContentMapper.Core.Configuration.Profiles
         public void Initialize(IMappingConfiguration configuration)
         {
             Configuration = configuration;
+            Configure(); // Call Configure() after setting Configuration
+        }
+
+        public virtual void Configure()
+        {
+            // Override in derived classes to configure mappings
         }
 
         protected IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()

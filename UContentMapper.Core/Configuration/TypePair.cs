@@ -12,12 +12,12 @@
         /// <summary>
         /// The source type in the mapping
         /// </summary>
-        public Type SourceType { get; } = sourceType ?? throw new ArgumentNullException(nameof(sourceType));
+        public Type SourceType { get; } = sourceType;
 
         /// <summary>
         /// The destination type in the mapping
         /// </summary>
-        public Type DestinationType { get; } = destinationType ?? throw new ArgumentNullException(nameof(destinationType));
+        public Type DestinationType { get; } = destinationType;
 
         /// <summary>
         /// Determines if two TypePair instances are equal
@@ -41,6 +41,11 @@
         /// </summary>
         public override int GetHashCode()
         {
+            if (SourceType is null || DestinationType is null)
+            {
+                return 0;
+            }
+
             return HashCode.Combine(SourceType, DestinationType);
         }
 

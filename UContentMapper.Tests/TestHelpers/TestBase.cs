@@ -1,5 +1,4 @@
 using AutoFixture;
-using AutoFixture.NUnit3;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;

@@ -15,7 +15,7 @@ public class TestPageModel : BaseContentModel
     public int CategoryId { get; set; }
     public bool IsPublished { get; set; }
     public DateTime? PublishDate { get; set; }
-    public List<string> Tags { get; set; } = new();
+    public List<string> Tags { get; set; } = [];
 }
 
 /// <summary>

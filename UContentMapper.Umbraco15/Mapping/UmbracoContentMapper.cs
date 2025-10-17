@@ -35,8 +35,13 @@ namespace UContentMapper.Umbraco15.Mapping
                 return false;
             }
 
+            if (string.IsNullOrEmpty(content.ContentType.Alias))
+            {
+                return false;
+            }
+
             // If we have a content type alias specified in the attribute, check it matches
-            if (_attribute != null)
+            if (_attribute is not null)
             {
                 if (_attribute.SourceType != source.GetType() &&
                     _attribute.SourceType != typeof(IPublishedContent))
@@ -71,7 +76,7 @@ namespace UContentMapper.Umbraco15.Mapping
                     var model = Activator.CreateInstance<TModel>();
 
                     // Map all properties from the source to the destination
-                    MapProperties(content, model);
+                    _mapProperties(content, model);
 
                     return model;
                 }
@@ -87,7 +92,7 @@ namespace UContentMapper.Umbraco15.Mapping
             }
         }
 
-        private void MapProperties(IPublishedContent content, TModel model)
+        private void _mapProperties(IPublishedContent content, TModel model)
         {
             var modelProperties = typeof(TModel).GetProperties()
                 .Where(p => p.CanWrite && !p.GetIndexParameters().Any())
@@ -101,7 +106,7 @@ namespace UContentMapper.Umbraco15.Mapping
                     var propertyAlias = property.Name.ToLowerInvariant();
 
                     // Try to map built-in properties first
-                    if (MapBuiltInProperty(content, model, property))
+                    if (_mapBuiltInProperty(content, model, property))
                     {
                         continue;
                     }
@@ -109,11 +114,11 @@ namespace UContentMapper.Umbraco15.Mapping
                     // Try to map from published content property
                     if (content.HasProperty(propertyAlias))
                     {
-                        var value = content.Value(propertyAlias);
-                        if (value != null)
+                        var value = content.GetProperty(propertyAlias)?.GetValue() ?? null;
+                        if (value is not null)
                         {
                             // Convert the value to the property type if needed
-                            var convertedValue = ConvertValue(value, property.PropertyType);
+                            var convertedValue = _convertValue(value, property.PropertyType);
                             property.SetValue(model, convertedValue);
                         }
                     }
@@ -126,7 +131,7 @@ namespace UContentMapper.Umbraco15.Mapping
             }
         }
 
-        private bool MapBuiltInProperty(IPublishedContent content, TModel model, System.Reflection.PropertyInfo property)
+        private static bool _mapBuiltInProperty(IPublishedContent content, TModel model, System.Reflection.PropertyInfo property)
         {
             var propertyName = property.Name;
 
@@ -134,56 +139,56 @@ namespace UContentMapper.Umbraco15.Mapping
             switch (propertyName)
             {
                 case "Id":
-                    TrySetValue(model, property, content.Id);
+                    _trySetValue(model, property, content.Id);
                     return true;
                 case "Key":
-                    TrySetValue(model, property, content.Key);
+                    _trySetValue(model, property, content.Key);
                     return true;
                 case "Name":
-                    TrySetValue(model, property, content.Name);
+                    _trySetValue(model, property, content.Name);
                     return true;
                 case "ContentTypeAlias":
-                    TrySetValue(model, property, content.ContentType.Alias);
+                    _trySetValue(model, property, content.ContentType.Alias);
                     return true;
                 case "Url":
-                    TrySetValue(model, property, content.Url());
+                    _trySetValue(model, property, content.Url());
                     return true;
                 case "AbsoluteUrl":
-                    TrySetValue(model, property, content.Url(mode: UrlMode.Absolute));
+                    _trySetValue(model, property, content.Url(mode: UrlMode.Absolute));
                     return true;
                 case "CreateDate":
-                    TrySetValue(model, property, content.CreateDate);
+                    _trySetValue(model, property, content.CreateDate);
                     return true;
                 case "UpdateDate":
-                    TrySetValue(model, property, content.UpdateDate);
+                    _trySetValue(model, property, content.UpdateDate);
                     return true;
                 case "Level":
-                    TrySetValue(model, property, content.Level);
+                    _trySetValue(model, property, content.Level);
                     return true;
                 case "SortOrder":
-                    TrySetValue(model, property, content.SortOrder);
+                    _trySetValue(model, property, content.SortOrder);
                     return true;
                 case "TemplateId":
-                    TrySetValue(model, property, content.TemplateId);
+                    _trySetValue(model, property, content.TemplateId);
                     return true;
                 case "IsVisible":
-                    TrySetValue(model, property, content.IsVisible());
+                    _trySetValue(model, property, content.IsVisible());
                     return true;
             }
 
             return false;
         }
 
-        private void TrySetValue(TModel model, System.Reflection.PropertyInfo property, object? value)
+        private static void _trySetValue(TModel model, System.Reflection.PropertyInfo property, object? value)
         {
             if (value != null)
             {
-                var convertedValue = ConvertValue(value, property.PropertyType);
+                var convertedValue = _convertValue(value, property.PropertyType);
                 property.SetValue(model, convertedValue);
             }
         }
 
-        private object? ConvertValue(object? value, Type targetType)
+        private static object? _convertValue(object? value, Type targetType)
         {
             if (value == null)
             {
@@ -196,6 +201,11 @@ namespace UContentMapper.Umbraco15.Mapping
             if (targetType == typeof(string))
             {
                 return value.ToString();
+            }
+
+            if (targetType == typeof(short) && short.TryParse(value.ToString(), out var shortValue))
+            {
+                return shortValue;
             }
 
             if (targetType == typeof(int) && int.TryParse(value.ToString(), out var intValue))
