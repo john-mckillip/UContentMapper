@@ -8,7 +8,7 @@ using UContentMapper.Tests.Mocks;
 using UContentMapper.Tests.TestHelpers;
 using UContentMapper.Umbraco15.Mapping;
 using Umbraco.Cms.Core.Models.PublishedContent;
-using Umbraco.Extensions;
+using static Umbraco.Cms.Core.PropertyEditors.ImageCropperConfiguration;
 
 namespace UContentMapper.Tests.Unit.Umbraco15.Mapping;
 
@@ -171,18 +171,29 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithContentProperties_ShouldMapCustomProperties()
     {
         // Arrange
-        var fallbackMock = new Mock<IPublishedValueFallback>();
+        var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
         var mock = MockPublishedContent.Create();
-        
+
         // Set up properties
-        mock.Setup(x => x.HasProperty("title")).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, "title", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("Test Page Title");
-        mock.Setup(x => x.HasProperty("description")).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, "description", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("Test Description");
-        mock.Setup(x => x.HasProperty("categoryid")).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, "categoryid", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns(123);
-        mock.Setup(x => x.HasProperty("ispublished")).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, "ispublished", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns(true);
+        var properties = new Dictionary<string, object>
+        {
+            { "title", "Test Page Title" },
+            { "description", "Test Description" },
+            { "categoryid", 123 },
+            { "ispublished", true },
+            { "publishdate", DateTime.UtcNow.AddDays(-5) }
+        };
+
+        foreach (var prop in properties)
+        {
+            var propertyMock = new Mock<IPublishedProperty>();
+            propertyMock.Setup(x => x.Alias).Returns(prop.Key);
+            propertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value != null);
+            propertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value);
+
+            mock.Setup(x => x.GetProperty(prop.Key)).Returns(propertyMock.Object);
+            mock.Setup(x => x.ContentType.GetPropertyType(prop.Key)).Returns(publishedPropertyTypeMock.Object);
+        }
 
         // Act
         var result = _mapper.Map(mock.Object);
@@ -198,14 +209,27 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithNullPropertyValues_ShouldSkipProperties()
     {
         // Arrange
-        var fallbackMock = new Mock<IPublishedValueFallback>();
+        var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
         var mock = MockPublishedContent.Create();
-        
+
         // Set up properties
-        mock.Setup(x => x.HasProperty("title")).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, "title", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns(null);
-        mock.Setup(x => x.HasProperty("description")).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, "description", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("Valid Description");
+        var titlePropertyMock = new Mock<IPublishedProperty>();
+        var titleAlias = "title";
+        titlePropertyMock.Setup(x => x.Alias).Returns(titleAlias);
+        titlePropertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
+        titlePropertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns(string.Empty);
+
+        mock.Setup(x => x.GetProperty(titleAlias)).Returns(titlePropertyMock.Object);
+        mock.Setup(x => x.ContentType.GetPropertyType(titleAlias)).Returns(publishedPropertyTypeMock.Object);
+
+        var descriptionPropertyMock = new Mock<IPublishedProperty>();
+        var descriptionAlias = "description";
+        descriptionPropertyMock.Setup(x => x.Alias).Returns(descriptionAlias);
+        descriptionPropertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
+        descriptionPropertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns("Valid Description");
+
+        mock.Setup(x => x.GetProperty(descriptionAlias)).Returns(descriptionPropertyMock.Object);
+        mock.Setup(x => x.ContentType.GetPropertyType(descriptionAlias)).Returns(publishedPropertyTypeMock.Object);
 
         // Act
         var result = _mapper.Map(mock.Object);
@@ -219,10 +243,10 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithMissingProperties_ShouldUseDefaultValues()
     {
         // Arrange
-        var content = MockPublishedContent.Create().Object;
+        var content = MockPublishedContent.Create();
 
         // Act
-        var result = _mapper.Map(content);
+        var result = _mapper.Map(content.Object);
 
         // Assert
         result.Title.Should().Be(string.Empty);
@@ -237,14 +261,19 @@ public class UmbracoContentMapperTests : TestBase
         // Arrange
         var mapper = new UmbracoContentMapper<TypeConversionTestModel>(_mappingConfigurationMock.Object,
             new FakeLogger<UmbracoContentMapper<TypeConversionTestModel>>());
-        
+
+        var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
         var propertyName = GetPropertyNameForType(targetType);
-        var fallbackMock = new Mock<IPublishedValueFallback>();
         var mock = MockPublishedContent.Create();
-        
+
         // Set up property
-        mock.Setup(x => x.HasProperty(propertyName.ToLowerInvariant())).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, propertyName.ToLowerInvariant(), It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns(sourceValue);
+        var propertyMock = new Mock<IPublishedProperty>();
+        propertyMock.Setup(x => x.Alias).Returns(propertyName.ToLowerInvariant());
+        propertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+        propertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns(sourceValue);
+
+        mock.Setup(x => x.GetProperty(propertyName.ToLowerInvariant())).Returns(propertyMock.Object);
+        mock.Setup(x => x.ContentType.GetPropertyType(propertyName.ToLowerInvariant())).Returns(publishedPropertyTypeMock.Object);
 
         // Act
         var result = mapper.Map(mock.Object);
@@ -292,14 +321,27 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithPropertyMappingException_ShouldLogWarningAndContinue()
     {
         // Arrange
-        var fallbackMock = new Mock<IPublishedValueFallback>();
+        var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
         var mock = MockPublishedContent.Create();
-        
+
         // Set up properties - one valid, one that will cause conversion error
-        mock.Setup(x => x.HasProperty("title")).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, "title", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("Valid Title");
-        mock.Setup(x => x.HasProperty("categoryid")).Returns(true);
-        mock.Setup(x => x.Value(fallbackMock.Object, "categoryid", It.IsAny<string>(), It.IsAny<string>(), default, It.IsAny<object>())).Returns("invalid_number");
+        var titlePropertyMock = new Mock<IPublishedProperty>();
+        var titleAlias = "title";
+        titlePropertyMock.Setup(x => x.Alias).Returns(titleAlias);
+        titlePropertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
+        titlePropertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns("Valid Title");
+
+        mock.Setup(x => x.GetProperty(titleAlias)).Returns(titlePropertyMock.Object);
+        mock.Setup(x => x.ContentType.GetPropertyType(titleAlias)).Returns(publishedPropertyTypeMock.Object);
+
+        var categoryIdPropertyMock = new Mock<IPublishedProperty>();
+        var categoryIdnAlias = "categoryid";
+        categoryIdPropertyMock.Setup(x => x.Alias).Returns(categoryIdnAlias);
+        categoryIdPropertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
+        categoryIdPropertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns("invalid_number");
+
+        mock.Setup(x => x.GetProperty(categoryIdnAlias)).Returns(categoryIdPropertyMock.Object);
+        mock.Setup(x => x.ContentType.GetPropertyType(categoryIdnAlias)).Returns(publishedPropertyTypeMock.Object);
 
         // Act
         var result = _mapper.Map(mock.Object);

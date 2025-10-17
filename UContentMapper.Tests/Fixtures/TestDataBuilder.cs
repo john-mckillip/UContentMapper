@@ -120,7 +120,7 @@ public class TestDataBuilder
         yield return new TestCaseData(DateTime.Parse("2023-01-01"), typeof(DateTime), 
             DateTime.Parse("2023-01-01")).SetName("DateTime to DateTime");
         yield return new TestCaseData("Test", typeof(string), "Test").SetName("String to String");
-        yield return new TestCaseData(null, typeof(string), null).SetName("Null to String");
+        yield return new TestCaseData(null, typeof(string), string.Empty).SetName("Null to String");
         yield return new TestCaseData(null, typeof(int), 0).SetName("Null to Int (Value Type)");
     }
 

@@ -14,8 +14,6 @@ public class MockPublishedContent
         var mock = new Mock<IPublishedContent>();
         var contentTypeMock = new Mock<IPublishedContentType>();
         var propertiesMock = new Mock<IEnumerable<IPublishedProperty>>();
-        var fallbackMock = new Mock<IPublishedValueFallback>();
-        var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
 
         // Set up basic properties
         mock.Setup(x => x.Id).Returns(1001);
