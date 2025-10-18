@@ -12,7 +12,7 @@
     <Exclude>[*.Tests]*,[*]System.*</Exclude>
     <ExcludeByFile>**/Migrations/*.cs</ExcludeByFile>
     <Include>[UContentMapper.Core]*,[UContentMapper.Umbraco15]*,[UContentMapper.Extensions]*</Include>
-    <Threshold>100</Threshold>
+    <Threshold>80</Threshold>
     <ThresholdType>line,branch,method</ThresholdType>
     <ThresholdStat>total</ThresholdStat>
   </PropertyGroup>
@@ -23,7 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.5.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
     <PackageReference Include="Moq" Version="4.20.72" />

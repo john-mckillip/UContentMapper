@@ -88,6 +88,7 @@ jobs:
         path: TestResults/test-results.trx
         reporter: dotnet-trx
         fail-on-error: true
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Comment coverage on PR
       if: github.event_name == 'pull_request'

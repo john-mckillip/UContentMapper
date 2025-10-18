@@ -4,7 +4,7 @@ namespace UContentMapper.Core.Configuration.Profiles
 {
     public abstract class MappingProfile
     {
-        protected IMappingConfiguration Configuration { get; private set; }
+        protected IMappingConfiguration Configuration { get; private set; } = null!;
 
         public void Initialize(IMappingConfiguration configuration)
         {

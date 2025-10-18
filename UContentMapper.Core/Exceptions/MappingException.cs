@@ -9,7 +9,7 @@ namespace UContentMapper.Core.Exceptions
         {
         }
 
-        public MappingException(string message, Exception innerException)
+        public MappingException(string message, Exception? innerException)
             : base(message, innerException)
         {
         }

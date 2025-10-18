@@ -74,11 +74,9 @@ public class ServiceCollectionExtensionsIntegrationTests : TestBase
 
         // Assert
         var urlConverter = serviceProvider.GetService<PublishedContentToUrlConverter>();
-        var mediaConverter = serviceProvider.GetService<PublishedContentToMediaWithCropsConverter>();
         var cropConverter = serviceProvider.GetService<MediaWithCropsToUrlConverter>();
 
         urlConverter.Should().NotBeNull();
-        mediaConverter.Should().NotBeNull();
         cropConverter.Should().NotBeNull();
     }
 
@@ -91,10 +89,8 @@ public class ServiceCollectionExtensionsIntegrationTests : TestBase
 
         // Assert
         var urlResolver = serviceProvider.GetService<PublishedContentUrlResolver>();
-        var mediaResolver = serviceProvider.GetService<MediaItemResolver>();
 
         urlResolver.Should().NotBeNull();
-        mediaResolver.Should().NotBeNull();
     }
 
     [Test]

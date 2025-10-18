@@ -17,8 +17,6 @@ namespace UContentMapper.Umbraco15.Extensions
         /// </summary>
         public static IServiceCollection AddUContentMapper(this IServiceCollection services)
         {
-            // Use TryAdd methods to ensure services are only registered once
-
             // Register the main mapping configuration
             services.TryAddSingleton<IMappingConfiguration, UmbracoMappingConfiguration>();
 
@@ -27,13 +25,11 @@ namespace UContentMapper.Umbraco15.Extensions
 
             // Register common type converters
             services.TryAddTransient<PublishedContentToUrlConverter>();
-            services.TryAddTransient<PublishedContentToMediaWithCropsConverter>();
             services.TryAddTransient<MediaWithCropsToUrlConverter>();
 
             // Register value resolvers
             services.TryAddTransient<PublishedContentUrlResolver>();
             services.TryAddTransient(typeof(MediaPropertyResolver<>));
-            services.TryAddTransient<MediaItemResolver>();
 
             // Configure the mapping profile from the Umbraco15 assembly
             services.TryAddSingleton(serviceProvider =>

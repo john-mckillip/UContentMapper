@@ -31,8 +31,10 @@
         /// <summary>
         /// Determines if this TypePair equals another object
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
+            if (obj is null) return false;
+
             return obj is TypePair other && Equals(other);
         }
 

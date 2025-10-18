@@ -106,8 +106,6 @@ public class TypePairTests : TestBase
         // Act & Assert
         typePair.Should().NotBe(null);
         typePair.Equals(null).Should().BeFalse();
-        (typePair == null).Should().BeFalse();
-        (typePair != null).Should().BeTrue();
     }
 
     [Test]

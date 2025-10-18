@@ -13,7 +13,7 @@ namespace UContentMapper.Umbraco15.Mapping
             return source is null
                 ? default!
                 : source.HasProperty(_propertyAlias)
-                    ? source.Value<TValue>(_propertyAlias)
+                    ? source.Value<TValue>(_propertyAlias) ?? default!
                     : default!;
         }
     }
