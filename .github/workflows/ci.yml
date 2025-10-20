@@ -50,7 +50,7 @@ jobs:
           --verbosity normal
 
     - name: Generate coverage report
-      uses: danielpalme/ReportGenerator-GitHub-Action@e9fa442c8d56105fbd330dc33a7c16c17f56439c
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.3.11
       with:
         reports: 'TestResults/**/coverage.cobertura.xml'
         targetdir: 'TestResults/coveragereport'
@@ -60,7 +60,7 @@ jobs:
         tag: '${{ github.run_number }}_${{ github.run_id }}'
 
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@40cde6acdf7f78eb54defea2f4f7ad47c1321ed3
+      uses: codecov/codecov-action@v4
       with:
         files: ./TestResults/**/coverage.cobertura.xml
         directory: ./TestResults
@@ -81,7 +81,7 @@ jobs:
           TestResults/**/coverage.*
 
     - name: Publish test results
-      uses: dorny/test-reporter@eaa763f6ffc21c7a237540686119e09442b7835a
+      uses: dorny/test-reporter@v1
       if: always()
       with:
         name: Test Results
@@ -92,7 +92,7 @@ jobs:
 
     - name: Comment coverage on PR
       if: github.event_name == 'pull_request'
-      uses: marocchino/sticky-pull-request-comment@80d2d2a1b58a380ce7989f2e8a0ad913fc0c2b68
+      uses: marocchino/sticky-pull-request-comment@v2
       with:
         recreate: true
         path: TestResults/coveragereport/Summary.txt
