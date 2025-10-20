@@ -78,7 +78,7 @@ dotnet build --no-restore --configuration $CONFIGURATION
 echo -e "${YELLOW}🧪 Running tests with coverage...${NC}"
 
 VERBOSITY_LEVEL="normal"
-if [ "$VERBOSE" = true ]; then
+if [[ "$VERBOSE" = true ]]; then
     VERBOSITY_LEVEL="detailed"
 fi
 
@@ -99,7 +99,7 @@ dotnet test --no-build --configuration $CONFIGURATION \
 TEST_EXIT_CODE=$?
 
 # Generate coverage report if tests passed
-if [ $TEST_EXIT_CODE -eq 0 ]; then
+if [[ $TEST_EXIT_CODE -eq 0 ]]; then
     echo -e "${YELLOW}📊 Generating coverage report...${NC}"
     
     # Check if reportgenerator is installed globally
@@ -119,12 +119,12 @@ if [ $TEST_EXIT_CODE -eq 0 ]; then
     echo ""
     echo -e "${GREEN}📈 Coverage Summary:${NC}"
     echo "==================="
-    if [ -f "TestResults/coveragereport/Summary.txt" ]; then
+    if [[ -f "TestResults/coveragereport/Summary.txt" ]]; then
         cat TestResults/coveragereport/Summary.txt
     fi
     
     # Open coverage report if requested
-    if [ "$OPEN_REPORT" = true ]; then
+    if [[ "$OPEN_REPORT" = true ]]; then
         if command -v xdg-open &> /dev/null; then
             xdg-open TestResults/coveragereport/index.html
         elif command -v open &> /dev/null; then
