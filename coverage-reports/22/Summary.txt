@@ -1,0 +1,51 @@
+Summary - UContentMapper Code Coverage
+  Generated on: 10/21/2025 - 22:02:01
+  Coverage date: 10/21/2025 - 22:01:59
+  Parser: MultiReport (2x Cobertura)
+  Assemblies: 2
+  Classes: 28
+  Files: 28
+  Line coverage: 73.6%
+  Covered lines: 571
+  Uncovered lines: 204
+  Coverable lines: 775
+  Total lines: 1769
+  Branch coverage: 53.6% (160 of 298)
+  Covered branches: 160
+  Total branches: 298
+  Method coverage: 70% (98 of 140)
+  Covered methods: 98
+  Total methods: 140
+  Tag: 22_18698881210
+
+UContentMapper.Core                                                                     66.7%
+  UContentMapper.Core.Configuration.MapperConfigurationOptions                           0.0%
+  UContentMapper.Core.Configuration.MappingConfigurationBase                           100.0%
+  UContentMapper.Core.Configuration.Profiles.BaseMappingProfile                         65.1%
+  UContentMapper.Core.Configuration.Profiles.MappingProfile                            100.0%
+  UContentMapper.Core.Configuration.TypePair                                           100.0%
+  UContentMapper.Core.Exceptions.ConfigurationException                                100.0%
+  UContentMapper.Core.Exceptions.MappingException                                      100.0%
+  UContentMapper.Core.Exceptions.PropertyMappingException                              100.0%
+  UContentMapper.Core.Models.Attributes.MapFromAttribute                                66.6%
+  UContentMapper.Core.Models.Attributes.MapperConfigurationAttribute                   100.0%
+  UContentMapper.Core.Models.Content.BaseContentModel                                  100.0%
+  UContentMapper.Core.Models.Content.BaseElementModel                                  100.0%
+  UContentMapper.Core.Models.Content.BaseMediaModel                                      0.0%
+  UContentMapper.Core.Models.Content.BaseSeoModel                                        0.0%
+  UContentMapper.Core.Models.Content.ImageModel                                          0.0%
+  UContentMapper.Core.Models.Metadata.PropertyMappingMetadata                           80.0%
+  UContentMapper.Core.Models.Metadata.TypeMappingMetadata                              100.0%
+
+UContentMapper.Umbraco15                                                                86.6%
+  UContentMapper.Umbraco15.Configuration.UmbracoMappingConfiguration                   100.0%
+  UContentMapper.Umbraco15.Configuration.UmbracoMappingExpression<T1, T2>               76.9%
+  UContentMapper.Umbraco15.Configuration.UmbracoMappingProfile                         100.0%
+  UContentMapper.Umbraco15.Configuration.UmbracoMemberConfigurationExpression<T1, T2>   71.0%
+  UContentMapper.Umbraco15.Extensions.ServiceCollectionExtensions                      100.0%
+  UContentMapper.Umbraco15.Mapping.MapperFactory                                         0.0%
+  UContentMapper.Umbraco15.Mapping.MediaPropertyResolver<T>                              0.0%
+  UContentMapper.Umbraco15.Mapping.MediaWithCropsToUrlConverter                          0.0%
+  UContentMapper.Umbraco15.Mapping.PublishedContentToUrlConverter                       66.6%
+  UContentMapper.Umbraco15.Mapping.PublishedContentUrlResolver                          66.6%
+  UContentMapper.Umbraco15.Mapping.UmbracoContentMapper<T>                              94.1%
