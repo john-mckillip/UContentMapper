@@ -8,7 +8,6 @@
     /// </remarks>
     public readonly struct TypePair(Type sourceType, Type destinationType) : IEquatable<TypePair>
     {
-
         /// <summary>
         /// The source type in the mapping
         /// </summary>

@@ -9,7 +9,7 @@ namespace UContentMapper.Core.Configuration.Profiles
         public void Initialize(IMappingConfiguration configuration)
         {
             Configuration = configuration;
-            Configure(); // Call Configure() after setting Configuration
+            Configure();
         }
 
         public virtual void Configure()

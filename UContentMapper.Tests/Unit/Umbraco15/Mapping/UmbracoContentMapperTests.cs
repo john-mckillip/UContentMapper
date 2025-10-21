@@ -8,7 +8,6 @@ using UContentMapper.Tests.Mocks;
 using UContentMapper.Tests.TestHelpers;
 using UContentMapper.Umbraco15.Mapping;
 using Umbraco.Cms.Core.Models.PublishedContent;
-using static Umbraco.Cms.Core.PropertyEditors.ImageCropperConfiguration;
 
 namespace UContentMapper.Tests.Unit.Umbraco15.Mapping;
 
@@ -25,14 +24,14 @@ public class UmbracoContentMapperTests : TestBase
         base.SetUp();
         _mappingConfigurationMock = CreateMock<IMappingConfiguration>();
         _logger = new FakeLogger<UmbracoContentMapper<TestPageModel>>();
-        _mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        _mapper = new UmbracoContentMapper<TestPageModel>(_logger);
     }
 
     [Test]
     public void Constructor_ShouldInitializeWithDependencies()
     {
         // Arrange & Act
-        var mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<TestPageModel>(_logger);
 
         // Assert
         mapper.Should().NotBeNull();
@@ -69,7 +68,7 @@ public class UmbracoContentMapperTests : TestBase
     {
         // Arrange
         var content = MockPublishedContent.WithContentTypeAlias("testPage").Object;
-        var mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<TestPageModel>(_logger);
 
         // Act
         var result = mapper.CanMap(content);
@@ -83,7 +82,7 @@ public class UmbracoContentMapperTests : TestBase
     {
         // Arrange
         var content = MockPublishedContent.WithContentTypeAlias("differentPage").Object;
-        var mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<TestPageModel>(_logger);
 
         // Act
         var result = mapper.CanMap(content);
@@ -97,8 +96,7 @@ public class UmbracoContentMapperTests : TestBase
     {
         // Arrange
         var content = MockPublishedContent.WithContentTypeAlias("anyContentType").Object;
-        var mapper = new UmbracoContentMapper<WildcardContentTypeModel>(_mappingConfigurationMock.Object, 
-            new FakeLogger<UmbracoContentMapper<WildcardContentTypeModel>>());
+        var mapper = new UmbracoContentMapper<WildcardContentTypeModel>(new FakeLogger<UmbracoContentMapper<WildcardContentTypeModel>>());
 
         // Act
         var result = mapper.CanMap(content);
@@ -112,8 +110,7 @@ public class UmbracoContentMapperTests : TestBase
     {
         // Arrange
         var content = MockPublishedContent.WithContentTypeAlias("testPage").Object;
-        var mapper = new UmbracoContentMapper<WrongSourceTypeModel>(_mappingConfigurationMock.Object,
-            new FakeLogger<UmbracoContentMapper<WrongSourceTypeModel>>());
+        var mapper = new UmbracoContentMapper<WrongSourceTypeModel>(new FakeLogger<UmbracoContentMapper<WrongSourceTypeModel>>());
 
         // Act
         var result = mapper.CanMap(content);
@@ -259,8 +256,7 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_ShouldConvertTypes(object sourceValue, Type targetType, object expectedValue)
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<TypeConversionTestModel>(_mappingConfigurationMock.Object,
-            new FakeLogger<UmbracoContentMapper<TypeConversionTestModel>>());
+        var mapper = new UmbracoContentMapper<TypeConversionTestModel>(new FakeLogger<UmbracoContentMapper<TypeConversionTestModel>>());
 
         var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
         var propertyName = GetPropertyNameForType(targetType);
@@ -289,8 +285,7 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithReadOnlyProperties_ShouldSkipReadOnlyProperties()
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<ReadOnlyPropertiesTestModel>(_mappingConfigurationMock.Object,
-            new FakeLogger<UmbracoContentMapper<ReadOnlyPropertiesTestModel>>());
+        var mapper = new UmbracoContentMapper<ReadOnlyPropertiesTestModel>(new FakeLogger<UmbracoContentMapper<ReadOnlyPropertiesTestModel>>());
         var content = MockPublishedContent.Create().Object;
 
         // Act
@@ -305,8 +300,7 @@ public class UmbracoContentMapperTests : TestBase
     public void Map_WithIndexerProperties_ShouldSkipIndexerProperties()
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<IndexerPropertiesTestModel>(_mappingConfigurationMock.Object,
-            new FakeLogger<UmbracoContentMapper<IndexerPropertiesTestModel>>());
+        var mapper = new UmbracoContentMapper<IndexerPropertiesTestModel>(new FakeLogger<UmbracoContentMapper<IndexerPropertiesTestModel>>());
         var content = MockPublishedContent.Create().Object;
 
         // Act
@@ -365,7 +359,7 @@ public class UmbracoContentMapperTests : TestBase
         var abstractLogger = new FakeLogger<UmbracoContentMapper<AbstractTestModel>>();
         
         // Create a mapper that will fail during activation (simulate error)
-        var mapper = new UmbracoContentMapper<AbstractTestModel>(_mappingConfigurationMock.Object, abstractLogger);
+        var mapper = new UmbracoContentMapper<AbstractTestModel>(abstractLogger);
 
         // Act
         var act = () => mapper.Map(content);

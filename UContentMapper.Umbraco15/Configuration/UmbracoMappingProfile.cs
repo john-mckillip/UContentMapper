@@ -22,12 +22,12 @@ namespace UContentMapper.Umbraco15.Configuration
             base.Configure();
 
             // Then configure Umbraco-specific mappings
-            ConfigureBaseContentMappings();
-            ConfigureBaseElementMappings();
-            ConfigureMediaMappings();
+            _configureBaseContentMappings();
+            _configureBaseElementMappings();
+            _configureMediaMappings();
         }
 
-        private void ConfigureBaseContentMappings()
+        private void _configureBaseContentMappings()
         {
             // Map IPublishedContent to your base content model
             CreateMap<IPublishedContent, BaseContentModel>()
@@ -55,7 +55,7 @@ namespace UContentMapper.Umbraco15.Configuration
                 .ForMember(dest => dest.NoIndex, opt => opt.MapFromProperty("noIndex"));
         }
 
-        private void ConfigureBaseElementMappings()
+        private void _configureBaseElementMappings()
         {
             // Map IPublishedElement to base element model (for compositions/nested content)
             CreateMap<IPublishedElement, BaseElementModel>()
@@ -63,7 +63,7 @@ namespace UContentMapper.Umbraco15.Configuration
                 .ForMember(dest => dest.ContentTypeAlias, opt => opt.MapFrom(src => src.ContentType.Alias));
         }
 
-        private void ConfigureMediaMappings()
+        private void _configureMediaMappings()
         {
             // Map IPublishedContent (media) to media model
             CreateMap<IPublishedContent, BaseMediaModel>()
@@ -79,10 +79,9 @@ namespace UContentMapper.Umbraco15.Configuration
             // Map MediaWithCrops to image model
             CreateMap<MediaWithCrops, ImageModel>()
                 .ForMember(dest => dest.Src, opt => opt.MapFrom(src => src.Content.Url(null, UrlMode.Default)))
-                .ForMember(dest => dest.Alt, opt => opt.MapFrom(src => src.Name));
-                // ToDo: Figure out where to map these from
-                //.ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width))
-                //.ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height));
+                .ForMember(dest => dest.Alt, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Width, opt => opt.MapFromProperty("umbracoWidth"))
+                .ForMember(dest => dest.Height, opt => opt.MapFromProperty("umbracoHeight"));
         }
     }
 }

@@ -112,45 +112,45 @@ public class TestDataBuilder
 
     public static IEnumerable<TestCaseData> GetTypeConversionTestCases()
     {
-        yield return new TestCaseData("42", typeof(int), 42).SetName("String to Int");
-        yield return new TestCaseData("true", typeof(bool), true).SetName("String to Bool");
-        yield return new TestCaseData("false", typeof(bool), false).SetName("String to Bool False");
+        yield return new TestCaseData("42", typeof(int), 42);
+        yield return new TestCaseData("true", typeof(bool), true);
+        yield return new TestCaseData("false", typeof(bool), false);
         yield return new TestCaseData("12345678-1234-1234-1234-123456789012", typeof(Guid), 
-            new Guid("12345678-1234-1234-1234-123456789012")).SetName("String to Guid");
+            new Guid("12345678-1234-1234-1234-123456789012"));
         yield return new TestCaseData(DateTime.Parse("2023-01-01"), typeof(DateTime), 
-            DateTime.Parse("2023-01-01")).SetName("DateTime to DateTime");
-        yield return new TestCaseData("Test", typeof(string), "Test").SetName("String to String");
-        yield return new TestCaseData(null, typeof(string), string.Empty).SetName("Null to String");
-        yield return new TestCaseData(null, typeof(int), 0).SetName("Null to Int (Value Type)");
+            DateTime.Parse("2023-01-01"));
+        yield return new TestCaseData("Test", typeof(string), "Test");
+        yield return new TestCaseData(null, typeof(string), string.Empty);
+        yield return new TestCaseData(null, typeof(int), 0);
     }
 
     public static IEnumerable<TestCaseData> GetContentTypeAliasTestCases()
     {
-        yield return new TestCaseData("testPage", "testPage", true).SetName("Matching Content Type");
-        yield return new TestCaseData("testPage", "differentPage", false).SetName("Non-matching Content Type");
-        yield return new TestCaseData("*", "anyContentType", true).SetName("Wildcard Content Type");
-        yield return new TestCaseData("testPage", "", false).SetName("Empty Content Type Alias");
+        yield return new TestCaseData("testPage", "testPage", true);
+        yield return new TestCaseData("testPage", "differentPage", false);
+        yield return new TestCaseData("*", "anyContentType", true);
+        yield return new TestCaseData("testPage", "", false);
     }
 
     public static IEnumerable<TestCaseData> GetBuiltInPropertyTestCases()
     {
         var content = CreatePublishedContentWithBuiltInProperties();
         
-        yield return new TestCaseData(content, nameof(TestPageModel.Id), content.Id).SetName("Id Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.Key), content.Key).SetName("Key Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.Name), content.Name).SetName("Name Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.ContentTypeAlias), content.ContentType.Alias).SetName("ContentTypeAlias Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.CreateDate), content.CreateDate).SetName("CreateDate Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.UpdateDate), content.UpdateDate).SetName("UpdateDate Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.Level), content.Level).SetName("Level Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.SortOrder), content.SortOrder).SetName("SortOrder Property");
-        yield return new TestCaseData(content, nameof(TestPageModel.TemplateId), content.TemplateId).SetName("TemplateId Property");
+        yield return new TestCaseData(content, nameof(TestPageModel.Id), content.Id);
+        yield return new TestCaseData(content, nameof(TestPageModel.Key), content.Key);
+        yield return new TestCaseData(content, nameof(TestPageModel.Name), content.Name);
+        yield return new TestCaseData(content, nameof(TestPageModel.ContentTypeAlias), content.ContentType.Alias);
+        yield return new TestCaseData(content, nameof(TestPageModel.CreateDate), content.CreateDate);
+        yield return new TestCaseData(content, nameof(TestPageModel.UpdateDate), content.UpdateDate);
+        yield return new TestCaseData(content, nameof(TestPageModel.Level), content.Level);
+        yield return new TestCaseData(content, nameof(TestPageModel.SortOrder), content.SortOrder);
+        yield return new TestCaseData(content, nameof(TestPageModel.TemplateId), content.TemplateId);
     }
 
     public static IEnumerable<TestCaseData> GetMappingFailureTestCases()
     {
-        yield return new TestCaseData(new object(), typeof(TestPageModel), "Cannot map object").SetName("Invalid Source Type");
-        yield return new TestCaseData(null, typeof(TestPageModel), "source").SetName("Null Source");
+        yield return new TestCaseData(new object(), typeof(TestPageModel), "Cannot map object");
+        yield return new TestCaseData(null, typeof(TestPageModel), "source");
     }
 
     public static TestPageModel CreateExpectedTestPageModel()

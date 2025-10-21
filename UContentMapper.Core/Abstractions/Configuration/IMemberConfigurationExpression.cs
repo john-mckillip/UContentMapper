@@ -6,7 +6,7 @@ namespace UContentMapper.Core.Abstractions.Configuration
     /// <summary>
     /// Provides configuration options for individual member mappings
     /// </summary>
-    public interface IMemberConfigurationExpression<TSource, TDestination, TMember>
+    public interface IMemberConfigurationExpression<TSource, TMember>
     {
         /// <summary>
         /// Maps from a specific source member
@@ -21,7 +21,7 @@ namespace UContentMapper.Core.Abstractions.Configuration
         /// <summary>
         /// Uses a custom value resolver
         /// </summary>
-        void ResolveUsing<TResolver>() where TResolver : IValueResolver<TSource, TDestination, TMember>;
+        void ResolveUsing<TResolver>() where TResolver : IValueResolver<TSource, TMember>;
 
         /// <summary>
         /// Uses a custom conversion function

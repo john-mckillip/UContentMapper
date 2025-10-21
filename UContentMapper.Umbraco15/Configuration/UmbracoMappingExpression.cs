@@ -13,7 +13,7 @@ namespace UContentMapper.Umbraco15.Configuration
 
         public IMappingExpression<TSource, TDestination> ForMember<TMember>(
             Expression<Func<TDestination, TMember>> destinationMember,
-            Action<IMemberConfigurationExpression<TSource, TDestination, TMember>> memberOptions)
+            Action<IMemberConfigurationExpression<TSource, TMember>> memberOptions)
         {
             if (destinationMember.Body is MemberExpression memberExpression)
             {
@@ -21,7 +21,7 @@ namespace UContentMapper.Umbraco15.Configuration
                 var memberType = typeof(TMember);
 
                 // Create a new configuration expression for this member
-                var memberConfigExpression = new UmbracoMemberConfigurationExpression<TSource, TDestination, TMember>(
+                var memberConfigExpression = new UmbracoMemberConfigurationExpression<TSource, TMember>(
                     _mappingMetadata, memberName, memberType);
 
                 // Apply the configuration options
@@ -46,9 +46,6 @@ namespace UContentMapper.Umbraco15.Configuration
 
         public IMappingExpression<TSource, TDestination> ConvertUsing(Func<TSource, TDestination> converter)
         {
-            // Store the converter function in the metadata
-            // This is simplified for the example - in a real implementation, you'd need
-            // to store the converter function in a way that it can be used during mapping
             return this;
         }
 
