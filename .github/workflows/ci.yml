@@ -11,6 +11,12 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
   DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
 
+# Add this permissions block at the top level
+permissions:
+  checks: write
+  contents: write
+  pull-requests: write
+
 jobs:
   test:
     name: Test and Coverage
@@ -58,17 +64,15 @@ jobs:
         verbosity: 'Info'
         title: 'UContentMapper Code Coverage'
         tag: '${{ github.run_number }}_${{ github.run_id }}'
-
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4
+        
+    - name: Deploy coverage report to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-        files: ./TestResults/**/coverage.cobertura.xml
-        directory: ./TestResults
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
-        verbose: true
-        token: ${{ secrets.CODECOV_TOKEN }}
+        folder: TestResults/coveragereport
+        branch: gh-pages
+        token: ${{ secrets.GITHUB_TOKEN }}
+        clean: true
+        target-folder: coverage-reports/${{ github.run_number }}
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -96,6 +100,13 @@ jobs:
       with:
         recreate: true
         path: TestResults/coveragereport/Summary.txt
+
+    - name: Add coverage to job summary
+      run: |
+        echo "## Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
+        cat TestResults/coveragereport/Summary.txt >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Full report available as artifact" >> $GITHUB_STEP_SUMMARY
 
   build:
     name: Build and Package
@@ -198,33 +209,33 @@ jobs:
     - name: Quality gate passed
       run: echo "All quality checks passed successfully!"
 
-  deploy:
-    name: Deploy to NuGet
-    runs-on: ubuntu-latest
-    needs: quality-gate
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
+  # deploy:
+  #   name: Deploy to NuGet
+  #   runs-on: ubuntu-latest
+  #   needs: quality-gate
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #   environment: production
 
-    steps:
-    - name: Download packages
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-packages
-        path: ./packages
+  #   steps:
+  #   - name: Download packages
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: nuget-packages
+  #       path: ./packages
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+  #   - name: Setup .NET
+  #     uses: actions/setup-dotnet@v4
+  #     with:
+  #       dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Push to NuGet
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: |
-        for package in ./packages/*.nupkg; do
-          echo "Pushing $package to NuGet..."
-          dotnet nuget push "$package" \
-            --source https://api.nuget.org/v3/index.json \
-            --api-key $NUGET_API_KEY \
-            --skip-duplicate
-        done
+  #   - name: Push to NuGet
+  #     env:
+  #       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+  #     run: |
+  #       for package in ./packages/*.nupkg; do
+  #         echo "Pushing $package to NuGet..."
+  #         dotnet nuget push "$package" \
+  #           --source https://api.nuget.org/v3/index.json \
+  #           --api-key $NUGET_API_KEY \
+  #           --skip-duplicate
+  #       done
