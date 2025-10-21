@@ -12,7 +12,7 @@
     <Exclude>[*.Tests]*,[*]System.*</Exclude>
     <ExcludeByFile>**/Migrations/*.cs</ExcludeByFile>
     <Include>[UContentMapper.Core]*,[UContentMapper.Umbraco15]*,[UContentMapper.Extensions]*</Include>
-    <Threshold>30</Threshold>
+    <Threshold>50</Threshold>
     <ThresholdType>line,branch,method</ThresholdType>
     <ThresholdStat>total</ThresholdStat>
   </PropertyGroup>
