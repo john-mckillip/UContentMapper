@@ -8,7 +8,7 @@ namespace UContentMapper.Umbraco15.Configuration
     /// <summary>
     /// Umbraco 15 implementation of member configuration expression
     /// </summary>
-    public class UmbracoMemberConfigurationExpression<TSource, TDestination, TMember>(
+    public class UmbracoMemberConfigurationExpression<TSource, TMember>(
         TypeMappingMetadata mappingMetadata,
         string memberName,
         Type memberType)

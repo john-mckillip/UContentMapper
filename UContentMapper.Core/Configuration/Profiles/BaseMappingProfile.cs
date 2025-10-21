@@ -48,7 +48,12 @@ namespace UContentMapper.Core.Configuration.Profiles
 			_configureCollectionConversions();
 
 			// Nullable conversions
-			_configureNullableConversions();
+			_configureStringToNullableInt();
+			_stringToNullableDecimal();
+			_stringToNullableDateTime();
+			_stringToNullableBoolean();
+			_stringToNullableGuid();
+			_configureNullableToStringConversions();
 		}
 
 		/// <summary>
@@ -489,16 +494,13 @@ namespace UContentMapper.Core.Configuration.Profiles
 		}
 
 		/// <summary>
-		/// Configures mappings for converting between nullable and non-nullable types.
+		/// Configures a mapping from a <see cref="string"/> to a nullable <see cref="int"/>.
 		/// </summary>
-		/// <remarks>
-		/// This method defines conversion rules for mapping between nullable value types and their non-nullable
-		/// counterparts, as well as conversions between nullable types and strings. Default values are provided
-		/// when converting from nullable to non-nullable types.
-		/// </remarks>
-		private void _configureNullableConversions()
+		/// <remarks>This mapping converts a string to a nullable integer. If the input string is null or empty,  the
+		/// result is <see langword="null"/>. If the string represents a valid integer, the parsed  integer value is returned.
+		/// Otherwise, the result is <see langword="null"/>.</remarks>
+		private void _configureStringToNullableInt()
 		{
-			// String to nullable types
 			CreateMap<string, int?>().ConvertUsing(s =>
 			{
 				if (string.IsNullOrEmpty(s))
@@ -509,7 +511,16 @@ namespace UContentMapper.Core.Configuration.Profiles
 
 				return null;
 			});
+		}
 
+		/// <summary>
+		/// Configures a mapping from a <see cref="string"/> to a nullable <see cref="decimal"/>.
+		/// </summary>
+		/// <remarks>This mapping converts a string to a nullable decimal using invariant culture.  If the input
+		/// string is <see langword="null"/> or empty, the result is <see langword="null"/>.  If the string cannot be parsed
+		/// as a valid decimal, the result is also <see langword="null"/>.</remarks>
+		private void _stringToNullableDecimal()
+		{
 			CreateMap<string, decimal?>().ConvertUsing(s =>
 			{
 				if (string.IsNullOrEmpty(s))
@@ -520,7 +531,16 @@ namespace UContentMapper.Core.Configuration.Profiles
 
 				return null;
 			});
+		}
 
+		/// <summary>
+		/// Configures a mapping from a <see cref="string"/> to a nullable <see cref="DateTime"/>.
+		/// </summary>
+		/// <remarks>This mapping converts a string to a <see cref="DateTime?"/> using the invariant culture. If the
+		/// input string is null or empty, the result is <see langword="null"/>. If the string cannot be parsed as a valid
+		/// <see cref="DateTime"/>, the result is also <see langword="null"/>.</remarks>
+		private void _stringToNullableDateTime()
+		{
 			CreateMap<string, DateTime?>().ConvertUsing(s =>
 			{
 				if (string.IsNullOrEmpty(s))
@@ -531,7 +551,19 @@ namespace UContentMapper.Core.Configuration.Profiles
 
 				return null;
 			});
+		}
 
+		/// <summary>
+		/// Configures a mapping from a string to a nullable boolean value.
+		/// </summary>
+		/// <remarks>This mapping interprets the input string as follows: <list type="bullet"> <item><description>If
+		/// the string is <see langword="null"/> or empty, the result is <see langword="null"/>.</description></item>
+		/// <item><description>If the string can be parsed as a boolean (e.g., "true" or "false"), the parsed value is
+		/// returned.</description></item> <item><description>For all other strings, the result is <see
+		/// langword="null"/>.</description></item> </list> This method is typically used to define custom conversion logic in
+		/// mapping configurations.</remarks>
+		private void _stringToNullableBoolean()
+		{
 			CreateMap<string, bool?>().ConvertUsing(s =>
 			{
 				if (string.IsNullOrEmpty(s))
@@ -542,7 +574,16 @@ namespace UContentMapper.Core.Configuration.Profiles
 
 				return null;
 			});
+		}
 
+		/// <summary>
+		/// Configures a mapping from a string to a nullable <see cref="Guid"/>.
+		/// </summary>
+		/// <remarks>This mapping converts a string to a <see cref="Guid?"/>. If the input string is null or empty, 
+		/// the result is <see langword="null"/>. If the string is a valid <see cref="Guid"/> representation,  it is parsed
+		/// and returned. Otherwise, the result is <see langword="null"/>.</remarks>
+		private void _stringToNullableGuid()
+		{
 			CreateMap<string, Guid?>().ConvertUsing(s =>
 			{
 				if (string.IsNullOrEmpty(s))
@@ -553,7 +594,18 @@ namespace UContentMapper.Core.Configuration.Profiles
 
 				return null;
 			});
+		}
 
+		/// <summary>
+		/// Configures mappings for converting between nullable and non-nullable types.
+		/// </summary>
+		/// <remarks>
+		/// This method defines conversion rules for mapping between nullable value types and their non-nullable
+		/// counterparts, as well as conversions between nullable types and strings. Default values are provided
+		/// when converting from nullable to non-nullable types.
+		/// </remarks>
+		private void _configureNullableToStringConversions()
+		{
 			// Nullable to string
 			CreateMap<int?, string>().ConvertUsing(i =>
 			{
