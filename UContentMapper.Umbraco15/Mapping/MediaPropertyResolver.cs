@@ -10,11 +10,18 @@ namespace UContentMapper.Umbraco15.Mapping
 
         public override TValue Resolve(IPublishedContent source, object destination, string memberName)
         {
-            return source is null
-                ? default!
-                : source.HasProperty(_propertyAlias)
-                    ? source.Value<TValue>(_propertyAlias) ?? default!
-                    : default!;
+            if (source is null)
+            {
+                return default!;
+            }
+
+            TValue propertyValue = default!;
+            if (source.HasProperty(_propertyAlias))
+            {
+                propertyValue = source.Value<TValue>(_propertyAlias) ?? default!;
+            }
+
+            return propertyValue;
         }
     }
 }

@@ -24,7 +24,7 @@ public class ParametrizedMappingTests : TestBase
         _logger = new FakeLogger<UmbracoContentMapper<TestPageModel>>();
     }
 
-    [TestCaseSource(nameof(GetContentTypeAliasTestCases))]
+    [TestCaseSource(nameof(_getContentTypeAliasTestCases))]
     public void CanMap_WithDifferentContentTypeAliases_ShouldReturnExpectedResult(
         string modelContentTypeAlias, string contentContentTypeAlias, bool expectedResult)
     {
@@ -39,13 +39,12 @@ public class ParametrizedMappingTests : TestBase
         result.Should().Be(expectedResult);
     }
 
-    [TestCaseSource(nameof(GetTypeConversionTestCases))]
+    [TestCaseSource(nameof(_getTypeConversionTestCases))]
     public void Map_WithDifferentTypeConversions_ShouldConvertCorrectly(
-        object sourceValue, Type targetType, object expectedValue, string propertyName)
+        object sourceValue, object expectedValue, string propertyName)
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<TypeConversionTestModel>(_mappingConfigurationMock.Object,
-            new FakeLogger<UmbracoContentMapper<TypeConversionTestModel>>());
+        var mapper = new UmbracoContentMapper<TypeConversionTestModel>(new FakeLogger<UmbracoContentMapper<TypeConversionTestModel>>());
         
         // Create mock with IPublishedValueFallback
         var mock = MockPublishedContent.Create();
@@ -71,12 +70,12 @@ public class ParametrizedMappingTests : TestBase
         actualValue.Should().Be(expectedValue);
     }
 
-    [TestCaseSource(nameof(GetBuiltInPropertyTestCases))]
+    [TestCaseSource(nameof(_getBuiltInPropertyTestCases))]
     public void Map_WithBuiltInProperties_ShouldMapCorrectly(
         string propertyName, object sourceValue, object expectedValue)
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<TestPageModel>(_logger);
         var content = _createContentWithBuiltInProperty(propertyName, sourceValue);
 
         // Act
@@ -89,12 +88,12 @@ public class ParametrizedMappingTests : TestBase
         actualValue.Should().Be(expectedValue);
     }
 
-    [TestCaseSource(nameof(GetErrorScenarioTestCases))]
+    [TestCaseSource(nameof(_getErrorScenarioTestCases))]
     public void Map_WithErrorScenarios_ShouldHandleGracefully(
         Dictionary<string, object> properties, string expectedErrorProperty)
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<TestPageModel>(_logger);
         
         // Create mock content with properties
         var mock = MockPublishedContent.Create();
@@ -123,12 +122,12 @@ public class ParametrizedMappingTests : TestBase
             log.Message.Contains(expectedErrorProperty));
     }
 
-    [TestCaseSource(nameof(GetNullValueTestCases))]
+    [TestCaseSource(nameof(_getNullValueTestCases))]
     public void Map_WithNullValues_ShouldUseDefaultValues(
         string propertyName, object? sourceValue, object expectedDefaultValue)
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<TestPageModel>(_logger);
         
         // Create mock content with properties
         var mock = MockPublishedContent.Create();
@@ -154,12 +153,12 @@ public class ParametrizedMappingTests : TestBase
         actualValue.Should().Be(expectedDefaultValue);
     }
 
-    [TestCaseSource(nameof(GetComplexMappingTestCases))]
+    [TestCaseSource(nameof(_getComplexMappingTestCases))]
     public void Map_WithComplexScenarios_ShouldMapCorrectly(
         Dictionary<string, object> properties, Action<TestPageModel> assertAction)
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<TestPageModel>(_logger);
         
         // Create mock content with properties and content type
         var mock = MockPublishedContent.Create();
@@ -190,11 +189,11 @@ public class ParametrizedMappingTests : TestBase
         assertAction(result);
     }
 
-    [TestCaseSource(nameof(GetInvalidSourceTestCases))]
+    [TestCaseSource(nameof(_getInvalidSourceTestCases))]
     public void CanMap_WithInvalidSources_ShouldReturnFalse(object source)
     {
         // Arrange
-        var mapper = new UmbracoContentMapper<TestPageModel>(_mappingConfigurationMock.Object, _logger);
+        var mapper = new UmbracoContentMapper<TestPageModel>(_logger);
 
         // Act
         var result = mapper.CanMap(source);
@@ -203,7 +202,7 @@ public class ParametrizedMappingTests : TestBase
         result.Should().BeFalse();
     }
 
-    [TestCaseSource(nameof(GetModelTypeTestCases))]
+    [TestCaseSource(nameof(_getModelTypeTestCases))]
     public void Mapper_WithDifferentModelTypes_ShouldWorkCorrectly(Type modelType, string contentTypeAlias, bool shouldMap)
     {
         // Arrange
@@ -214,7 +213,7 @@ public class ParametrizedMappingTests : TestBase
         var collector = new FakeLogCollector();
         var logger = Activator.CreateInstance(loggerType, new object?[] { collector });
 
-        var mapper = Activator.CreateInstance(mapperType, _mappingConfigurationMock.Object, logger);
+        var mapper = Activator.CreateInstance(mapperType, logger);
 
         var content = MockPublishedContent.WithContentTypeAlias(contentTypeAlias).Object;
 
@@ -228,52 +227,52 @@ public class ParametrizedMappingTests : TestBase
 
     #region Test Case Sources
 
-    public static IEnumerable<TestCaseData> GetContentTypeAliasTestCases()
+    private static IEnumerable<TestCaseData> _getContentTypeAliasTestCases()
     {
-        yield return new TestCaseData("testPage", "testPage", true).SetName("Exact Match");
-        yield return new TestCaseData("testPage", "differentPage", false).SetName("No Match");
-        yield return new TestCaseData("*", "anyContentType", false).SetName("Wildcard Match");
-        yield return new TestCaseData("testPage", "", false).SetName("Empty Content Type");
-        yield return new TestCaseData("", "", false).SetName("Empty Model Alias");
+        yield return new TestCaseData("testPage", "testPage", true);
+        yield return new TestCaseData("testPage", "differentPage", false);
+        yield return new TestCaseData("*", "anyContentType", false);
+        yield return new TestCaseData("testPage", "", false);
+        yield return new TestCaseData("", "", false);
     }
 
-    public static IEnumerable<TestCaseData> GetTypeConversionTestCases()
+    private static IEnumerable<TestCaseData> _getTypeConversionTestCases()
     {
-        yield return new TestCaseData("42", typeof(int), 42, nameof(TypeConversionTestModel.IntValue)).SetName("String to Int");
-        yield return new TestCaseData("true", typeof(bool), true, nameof(TypeConversionTestModel.BoolValue)).SetName("String to Bool True");
-        yield return new TestCaseData("false", typeof(bool), false, nameof(TypeConversionTestModel.BoolValue)).SetName("String to Bool False");
-        yield return new TestCaseData("12345678-1234-1234-1234-123456789012", typeof(Guid), 
-            new Guid("12345678-1234-1234-1234-123456789012"), nameof(TypeConversionTestModel.GuidValue)).SetName("String to Guid");
-        yield return new TestCaseData(DateTime.Parse("2023-01-01"), typeof(DateTime), 
-            DateTime.Parse("2023-01-01"), nameof(TypeConversionTestModel.DateTimeValue)).SetName("DateTime to DateTime");
-        yield return new TestCaseData("Test String", typeof(string), "Test String", nameof(TypeConversionTestModel.StringValue)).SetName("String to String");
+        yield return new TestCaseData("42", 42, nameof(TypeConversionTestModel.IntValue));
+        yield return new TestCaseData("true", true, nameof(TypeConversionTestModel.BoolValue));
+        yield return new TestCaseData("false", false, nameof(TypeConversionTestModel.BoolValue));
+        yield return new TestCaseData("12345678-1234-1234-1234-123456789012", 
+            new Guid("12345678-1234-1234-1234-123456789012"), nameof(TypeConversionTestModel.GuidValue));
+        yield return new TestCaseData(DateTime.Parse("2023-01-01"),
+            DateTime.Parse("2023-01-01"), nameof(TypeConversionTestModel.DateTimeValue));
+        yield return new TestCaseData("Test String", "Test String", nameof(TypeConversionTestModel.StringValue));
     }
 
-    public static IEnumerable<TestCaseData> GetBuiltInPropertyTestCases()
+    private static IEnumerable<TestCaseData> _getBuiltInPropertyTestCases()
     {
-        yield return new TestCaseData(nameof(TestPageModel.Id), 1001, 1001).SetName("Id Property");
-        yield return new TestCaseData(nameof(TestPageModel.Name), "Test Name", "Test Name").SetName("Name Property");
-        yield return new TestCaseData(nameof(TestPageModel.Level), 2, 2).SetName("Level Property");
-        yield return new TestCaseData(nameof(TestPageModel.SortOrder), 5, 5).SetName("SortOrder Property");
+        yield return new TestCaseData(nameof(TestPageModel.Id), 1001, 1001);
+        yield return new TestCaseData(nameof(TestPageModel.Name), "Test Name", "Test Name");
+        yield return new TestCaseData(nameof(TestPageModel.Level), 2, 2);
+        yield return new TestCaseData(nameof(TestPageModel.SortOrder), 5, 5);
     }
 
-    public static IEnumerable<TestCaseData> GetErrorScenarioTestCases()
+    private static IEnumerable<TestCaseData> _getErrorScenarioTestCases()
     {
         yield return new TestCaseData(
             new Dictionary<string, object> { { "categoryid", "not_a_number" } },
             "CategoryId"
-        ).SetName("Invalid Int Conversion");
+        );
     }
 
-    public static IEnumerable<TestCaseData> GetNullValueTestCases()
+    private static IEnumerable<TestCaseData> _getNullValueTestCases()
     {
-        yield return new TestCaseData(nameof(TestPageModel.Title), null, string.Empty).SetName("Null String");
-        yield return new TestCaseData(nameof(TestPageModel.CategoryId), null, 0).SetName("Null Int");
-        yield return new TestCaseData(nameof(TestPageModel.IsPublished), null, false).SetName("Null Bool");
-        yield return new TestCaseData(nameof(TestPageModel.PublishDate), null, null).SetName("Null Nullable DateTime");
+        yield return new TestCaseData(nameof(TestPageModel.Title), null, string.Empty);
+        yield return new TestCaseData(nameof(TestPageModel.CategoryId), null, 0);
+        yield return new TestCaseData(nameof(TestPageModel.IsPublished), null, false);
+        yield return new TestCaseData(nameof(TestPageModel.PublishDate), null, null);
     }
 
-    public static IEnumerable<TestCaseData> GetComplexMappingTestCases()
+    private static IEnumerable<TestCaseData> _getComplexMappingTestCases()
     {
         yield return new TestCaseData(
             new Dictionary<string, object>
@@ -290,7 +289,7 @@ public class ParametrizedMappingTests : TestBase
                 model.CategoryId.Should().Be(999);
                 model.IsPublished.Should().BeTrue();
             })
-        ).SetName("All Properties Mapping");
+        );
 
         yield return new TestCaseData(
             new Dictionary<string, object>
@@ -305,23 +304,23 @@ public class ParametrizedMappingTests : TestBase
                 model.CategoryId.Should().Be(0);
                 model.IsPublished.Should().BeFalse();
             })
-        ).SetName("Empty Values Mapping");
+        );
     }
 
-    public static IEnumerable<TestCaseData> GetInvalidSourceTestCases()
+    private static IEnumerable<TestCaseData> _getInvalidSourceTestCases()
     {
-        yield return new TestCaseData(new object()).SetName("Generic Object");
-        yield return new TestCaseData("string").SetName("String");
-        yield return new TestCaseData(123).SetName("Integer");
-        yield return new TestCaseData(null!).SetName("Null");
+        yield return new TestCaseData(new object());
+        yield return new TestCaseData("string");
+        yield return new TestCaseData(123);
+        yield return new TestCaseData(null!);
     }
 
-    public static IEnumerable<TestCaseData> GetModelTypeTestCases()
+    private static IEnumerable<TestCaseData> _getModelTypeTestCases()
     {
-        yield return new TestCaseData(typeof(TestPageModel), "testPage", true).SetName("TestPageModel with testPage");
-        yield return new TestCaseData(typeof(WildcardContentTypeModel), "anyContentType", true).SetName("WildcardModel with any type");
-        yield return new TestCaseData(typeof(WrongSourceTypeModel), "testPage", false).SetName("WrongSourceTypeModel");
-        yield return new TestCaseData(typeof(SimpleTestModel), "simpleContent", true).SetName("SimpleTestModel with simpleContent");
+        yield return new TestCaseData(typeof(TestPageModel), "testPage", true);
+        yield return new TestCaseData(typeof(WildcardContentTypeModel), "anyContentType", true);
+        yield return new TestCaseData(typeof(WrongSourceTypeModel), "testPage", false);
+        yield return new TestCaseData(typeof(SimpleTestModel), "simpleContent", true);
     }
 
     #endregion
@@ -331,8 +330,7 @@ public class ParametrizedMappingTests : TestBase
     private UmbracoContentMapper<T> _createMapperForContentType<T>(string contentTypeAlias) where T : class
     {
         // Create a custom mapper configuration that simulates the attribute behavior
-        var mapper = new UmbracoContentMapper<T>(_mappingConfigurationMock.Object,
-            new FakeLogger<UmbracoContentMapper<T>>());
+        var mapper = new UmbracoContentMapper<T>(new FakeLogger<UmbracoContentMapper<T>>());
         return mapper;
     }
 
