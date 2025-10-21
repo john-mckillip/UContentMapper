@@ -26,7 +26,7 @@ namespace UContentMapper.Core.Configuration.Profiles
 			_configureStringToLongConversion();
 			_configureStringToDecimalConversion();
 			_configureStringToDoubleConversion();
-			_configureStringToFoatConversion();
+			_configureStringToFloatConversion();
 			_configureStringToGuidConversion();
 
 			// Numeric to string conversions
@@ -138,7 +138,7 @@ namespace UContentMapper.Core.Configuration.Profiles
 		/// </summary>
 		/// <remarks>The conversion logic ensures that null or empty strings are mapped to 0. If the string represents
 		/// a valid float in invariant culture, it is parsed and returned. Otherwise, the value defaults to 0.</remarks>
-		private void _configureStringToFoatConversion()
+		private void _configureStringToFloatConversion()
 		{
 			CreateMap<string, float>().ConvertUsing(s =>
 			{
