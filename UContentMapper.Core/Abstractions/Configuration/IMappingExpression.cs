@@ -6,7 +6,7 @@ namespace UContentMapper.Core.Abstractions.Configuration
     {
         IMappingExpression<TSource, TDestination> ForMember<TMember>(
             Expression<Func<TDestination, TMember>> destinationMember,
-            Action<IMemberConfigurationExpression<TSource, TDestination, TMember>> memberOptions);
+            Action<IMemberConfigurationExpression<TSource, TMember>> memberOptions);
 
         IMappingExpression<TSource, TDestination> Ignore<TMember>(
             Expression<Func<TDestination, TMember>> destinationMember);

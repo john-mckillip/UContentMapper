@@ -1,7 +1,7 @@
 ﻿namespace UContentMapper.Core.Abstractions.Mapping
 {
-    public interface IValueResolver<in TSource, in TDestination, out TValue>
+    public interface IValueResolver<in TSource, out TValue>
     {
-        TValue Resolve(TSource source, TDestination destination, string memberName);
+        TValue Resolve(TSource source);
     }
 }

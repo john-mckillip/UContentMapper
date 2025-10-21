@@ -13,7 +13,7 @@ namespace UContentMapper.Umbraco15.Configuration
 
         public IMappingExpression<TSource, TDestination> ForMember<TMember>(
             Expression<Func<TDestination, TMember>> destinationMember,
-            Action<IMemberConfigurationExpression<TSource, TDestination, TMember>> memberOptions)
+            Action<IMemberConfigurationExpression<TSource, TMember>> memberOptions)
         {
             if (destinationMember.Body is MemberExpression memberExpression)
             {

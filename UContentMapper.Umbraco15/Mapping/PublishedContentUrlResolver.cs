@@ -1,4 +1,5 @@
-﻿using Umbraco.Cms.Core.Models.PublishedContent;
+﻿using UContentMapper.Core.Abstractions.Mapping;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Extensions;
 
 namespace UContentMapper.Umbraco15.Mapping
@@ -8,11 +9,11 @@ namespace UContentMapper.Umbraco15.Mapping
     /// </summary>
     /// <param name="urlMode"></param>
     public class PublishedContentUrlResolver(UrlMode urlMode = UrlMode.Default)
-                : UmbracoValueResolver<IPublishedContent, object, string>
+                : IValueResolver<IPublishedContent, string>
     {
         private readonly UrlMode _urlMode = urlMode;
 
-        public override string Resolve(IPublishedContent source, object destination, string memberName)
+        public string Resolve(IPublishedContent source)
         {
             return source?.Url(null, _urlMode) ?? string.Empty;
         }
