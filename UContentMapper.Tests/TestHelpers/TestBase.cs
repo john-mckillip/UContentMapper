@@ -37,7 +37,8 @@ public abstract class TestBase
     protected virtual void ConfigureFixture()
     {
         // Configure AutoFixture customizations here
-        Fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        Fixture.Behaviors.OfType<ThrowingRecursionBehavior>()
+            .ToList()
             .ForEach(b => Fixture.Behaviors.Remove(b));
         Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
     }
@@ -62,23 +63,3 @@ public abstract class TestBase
         return Services.BuildServiceProvider();
     }
 }
-
-///// <summary>
-///// Auto data attribute that uses AutoFixture with NUnit
-///// </summary>
-//public class AutoDataAttribute : AutoDataAttribute
-//{
-//    public AutoDataAttribute() : base(() => new Fixture())
-//    {
-//    }
-//}
-
-///// <summary>
-///// Inline auto data attribute for parameterized tests
-///// </summary>
-//public class InlineAutoDataAttribute : InlineAutoDataAttribute
-//{
-//    public InlineAutoDataAttribute(params object[] arguments) : base(new AutoDataAttribute(), arguments)
-//    {
-//    }
-//}

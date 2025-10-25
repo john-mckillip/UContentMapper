@@ -90,39 +90,6 @@ public class AttributeTests : TestBase
     }
 
     [Test]
-    public void MapFromAttribute_ShouldAllowSettingPropertyAlias()
-    {
-        // Arrange
-        var propertyAlias = "customPropertyName";
-
-        // Act
-        var attribute = new MapFromAttribute(propertyAlias);
-
-        // Assert
-        attribute.PropertyAlias.Should().Be(propertyAlias);
-    }
-
-    [Test]
-    public void MapFromAttribute_ShouldHandleEmptyPropertyAlias()
-    {
-        // Arrange & Act
-        var attribute = new MapFromAttribute("");
-
-        // Assert
-        attribute.PropertyAlias.Should().Be("");
-    }
-
-    [Test]
-    public void MapFromAttribute_ShouldHandleNullPropertyAlias()
-    {
-        // Arrange & Act
-        var attribute = new MapFromAttribute(null!);
-
-        // Assert
-        attribute.PropertyAlias.Should().BeNull();
-    }
-
-    [Test]
     public void AttributeUsage_MapperConfigurationAttribute_ShouldOnlyAllowClass()
     {
         // Arrange
@@ -151,16 +118,81 @@ public class AttributeTests : TestBase
     }
 
     [Test]
-    public void AttributeUsage_MapFromAttribute_ShouldOnlyAllowProperty()
+    public void MapFromAttribute_ShouldStorePropertyAlias()
+    {
+        // Arrange
+        const string propertyAlias = "customProperty";
+
+        // Act
+        var attribute = new MapFromAttribute(propertyAlias);
+
+        // Assert
+        attribute.PropertyAlias.Should().Be(propertyAlias);
+    }
+
+    [Test]
+    public void MapFromAttribute_ShouldInitializeWithDefaultRecursiveValue()
+    {
+        // Arrange & Act
+        var attribute = new MapFromAttribute("testProperty");
+
+        // Assert
+        attribute.Recursive.Should().BeFalse();
+    }
+
+    [Test]
+    public void MapFromAttribute_ShouldAllowSettingRecursive()
+    {
+        // Arrange & Act
+        var attribute = new MapFromAttribute("testProperty") { Recursive = true };
+
+        // Assert
+        attribute.Recursive.Should().BeTrue();
+    }
+
+    [Test]
+    public void MapFromAttribute_ShouldHandleEmptyPropertyAlias()
+    {
+        // Arrange & Act
+        var attribute = new MapFromAttribute(string.Empty);
+
+        // Assert
+        attribute.PropertyAlias.Should().BeEmpty();
+    }
+
+    [Test]
+    public void MapFromAttribute_ShouldHandleNullPropertyAlias()
+    {
+        // Arrange & Act
+        var attribute = new MapFromAttribute(null!);
+
+        // Assert
+        attribute.PropertyAlias.Should().BeNull();
+    }
+
+    [Test]
+    public void MapFromAttribute_ShouldBeDecoratedWithAttributeUsageAttribute()
     {
         // Arrange
         var attributeType = typeof(MapFromAttribute);
 
         // Act
-        var attributeUsage = (AttributeUsageAttribute)Attribute.GetCustomAttribute(attributeType, typeof(AttributeUsageAttribute))!;
+        var usage = (AttributeUsageAttribute)Attribute.GetCustomAttribute(attributeType, typeof(AttributeUsageAttribute))!;
 
         // Assert
-        attributeUsage.Should().NotBeNull();
-        attributeUsage.ValidOn.Should().Be(AttributeTargets.Property);
+        usage.Should().NotBeNull();
+        usage.ValidOn.Should().Be(AttributeTargets.Property);
+        usage.AllowMultiple.Should().BeFalse();
+        usage.Inherited.Should().BeTrue();
+    }
+
+    [Test]
+    public void MapFromAttribute_ShouldInheritFromAttribute()
+    {
+        // Arrange & Act
+        var attribute = new MapFromAttribute("test");
+
+        // Assert
+        attribute.Should().BeAssignableTo<Attribute>();
     }
 }
