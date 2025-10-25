@@ -22,6 +22,7 @@ namespace UContentMapper.Umbraco15.Extensions
 
             // Register generic mappers
             services.TryAddTransient(typeof(IContentMapper<>), typeof(UmbracoContentMapper<>));
+            services.TryAddTransient<IContentMapperFactory, ContentMapperFactory>();
 
             // Register common type converters
             services.TryAddTransient<PublishedContentToUrlConverter>();
