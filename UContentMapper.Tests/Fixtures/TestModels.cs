@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Html;
 using UContentMapper.Core.Models.Attributes;
 using UContentMapper.Core.Models.Content;
 using Umbraco.Cms.Core.Models.PublishedContent;
@@ -16,6 +17,7 @@ public class TestPageModel : BaseContentModel
     public bool IsPublished { get; set; }
     public DateTime? PublishDate { get; set; }
     public List<string> Tags { get; set; } = [];
+    public IHtmlContent? MainBody { get; set; }
 }
 
 /// <summary>
@@ -92,6 +94,7 @@ public class TypeConversionTestModel
     public bool? NullableBoolValue { get; set; }
     public DateTime? NullableDateTimeValue { get; set; }
     public Guid? NullableGuidValue { get; set; }
+    public IHtmlContent? NullableHtmlContentValue { get; set; }
 }
 
 /// <summary>

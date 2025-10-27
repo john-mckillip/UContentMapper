@@ -259,7 +259,7 @@ public class UmbracoContentMapperTests : TestBase
         var mapper = new UmbracoContentMapper<TypeConversionTestModel>(new FakeLogger<UmbracoContentMapper<TypeConversionTestModel>>());
 
         var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
-        var propertyName = GetPropertyNameForType(targetType);
+        var propertyName = _getPropertyNameForType(targetType);
         var mock = MockPublishedContent.Create();
 
         // Set up property
@@ -371,7 +371,7 @@ public class UmbracoContentMapperTests : TestBase
             log.Message.Contains("Error mapping"));
     }
 
-    private static string GetPropertyNameForType(Type type)
+    private static string _getPropertyNameForType(Type type)
     {
         return type.Name switch
         {

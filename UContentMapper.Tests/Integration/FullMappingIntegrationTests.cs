@@ -7,6 +7,7 @@ using UContentMapper.Tests.Mocks;
 using UContentMapper.Tests.TestHelpers;
 using UContentMapper.Umbraco15.Extensions;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Strings;
 
 namespace UContentMapper.Tests.Integration;
 
@@ -73,11 +74,12 @@ public class FullMappingIntegrationTests : TestBase
         var contentTypeMock = new Mock<IPublishedContentType>();
         contentTypeMock.Setup(x => x.Alias).Returns("testPage");
         mock.Setup(x => x.ContentType).Returns(contentTypeMock.Object);
-        
+
         // Set up properties
         var properties = new Dictionary<string, object>
         {
             { "title", "Integration Test Title" },
+            { "mainbody", new HtmlEncodedString("{<p>This is some test html from a WYSIWYG editor.</p>}") },
             { "description", "Integration test description" },
             { "categoryid", 999 },
             { "ispublished", true },
@@ -88,7 +90,7 @@ public class FullMappingIntegrationTests : TestBase
         {
             var propertyMock = new Mock<IPublishedProperty>();
             propertyMock.Setup(x => x.Alias).Returns(prop.Key);
-            propertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value != null);
+            propertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value is not null);
             propertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value);
             
             mock.Setup(x => x.GetProperty(prop.Key)).Returns(propertyMock.Object);
@@ -102,6 +104,8 @@ public class FullMappingIntegrationTests : TestBase
         result.Should().NotBeNull();
         result.Title.Should().Be("Integration Test Title");
         result.Description.Should().Be("Integration test description");
+        result.MainBody.Should().NotBe(null);
+        result.MainBody?.ToString().Should().Be("{<p>This is some test html from a WYSIWYG editor.</p>}");
         result.CategoryId.Should().Be(999);
         result.IsPublished.Should().BeTrue();
         result.PublishDate.Should().BeCloseTo(DateTime.UtcNow.AddDays(-5), TimeSpan.FromSeconds(1));
@@ -135,7 +139,8 @@ public class FullMappingIntegrationTests : TestBase
             { "decimalvalue", 999.99m },
             { "floatvalue", 2.718F },
             { "longvalue", 9223372036854775807 },
-            { "shortvalue", 32767 }
+            { "shortvalue", 32767 },
+            { "nullablehtmlcontentvalue", new HtmlEncodedString("{<p>This is some test html from a WYSIWYG editor.</p>}")}
         };
         
         foreach (var prop in properties)
@@ -164,6 +169,8 @@ public class FullMappingIntegrationTests : TestBase
         result.FloatValue.Should().BeApproximately(2.718f, 0.001f);
         result.LongValue.Should().Be(9223372036854775807);
         result.ShortValue.Should().Be(32767);
+        result.NullableHtmlContentValue.Should().NotBe(null);
+        result.NullableHtmlContentValue?.ToString().Should().Be("{<p>This is some test html from a WYSIWYG editor.</p>}");
     }
 
     [Test]

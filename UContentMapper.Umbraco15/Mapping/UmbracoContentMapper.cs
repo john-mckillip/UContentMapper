@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Html;
+using Microsoft.Extensions.Logging;
 using UContentMapper.Core.Abstractions.Mapping;
 using UContentMapper.Core.Exceptions;
 using UContentMapper.Core.Models.Attributes;
+using UContentMapper.Umbraco15.Extensions;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Extensions;
 
 namespace UContentMapper.Umbraco15.Mapping
@@ -198,6 +201,12 @@ namespace UContentMapper.Umbraco15.Mapping
 
             var valueType = value.GetType();
 
+            // If the value is already the right type, return it
+            if (targetType.IsAssignableFrom(valueType))
+            {
+                return value;
+            }
+
             // Handle common built-in type conversions
             if (targetType == typeof(string))
             {
@@ -229,14 +238,14 @@ namespace UContentMapper.Umbraco15.Mapping
                 return guidValue;
             }
 
-            // If the value is already the right type, return it
-            if (targetType.IsAssignableFrom(valueType))
+            // Handle Umbraco types
+            // WYSIWYG Editor 
+            if (targetType == typeof(IHtmlContent) && valueType.Equals(typeof(HtmlEncodedString)))
             {
-                return value;
-            }
+                var htmlEncodedString = (HtmlEncodedString)value;
 
-            // For complex types, we might need to do more sophisticated mapping here
-            // This would involve recursively mapping objects or handling collections
+                return htmlEncodedString.ToHtmlContent();
+            }
 
             return value;
         }
