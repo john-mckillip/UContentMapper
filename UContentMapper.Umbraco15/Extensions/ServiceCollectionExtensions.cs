@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using UContentMapper.Core.Abstractions.Configuration;
 using UContentMapper.Core.Abstractions.Mapping;
+using UContentMapper.Core.Services;
 using UContentMapper.Umbraco15.Configuration;
 using UContentMapper.Umbraco15.Mapping;
 
@@ -17,6 +18,15 @@ namespace UContentMapper.Umbraco15.Extensions
         /// </summary>
         public static IServiceCollection AddUContentMapper(this IServiceCollection services)
         {
+            // Register the model property service
+            services.TryAddSingleton<IModelPropertyService, ModelPropertyService>();
+
+            // Register the property value converter
+            services.TryAddSingleton<IPropertyValueConverter, UmbracoPropertyValueConverter>();
+
+            // Register the published property mapper
+            services.TryAddScoped(typeof(IPublishedPropertyMapper<>), typeof(UmbracoPropertyMapper<>));
+
             // Register the main mapping configuration
             services.TryAddSingleton<IMappingConfiguration, UmbracoMappingConfiguration>();
 
