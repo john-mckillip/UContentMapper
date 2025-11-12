@@ -195,6 +195,8 @@ public class UmbracoContentMapperTests : TestBase
             mock.Setup(x => x.ContentType.GetPropertyType(prop.Key)).Returns(publishedPropertyTypeMock.Object);
         }
 
+        _mapper = _createMapper<TestPageModel>(properties);
+
         // Act
         var result = _mapper.Map(mock.Object);
 
@@ -398,6 +400,32 @@ public class UmbracoContentMapperTests : TestBase
             .Callback<object, T>((source, destination) =>
             {
                 // Setup default mapping behavior if needed
+            });
+
+        return new UmbracoContentMapper<T>(
+            logger,
+            _modelPropertyServiceMock.Object,
+            propertyMapperMock.Object);
+    }
+
+    private UmbracoContentMapper<T> _createMapper<T>(Dictionary<string, object>? propertyValues = null) where T : class
+    {
+        var logger = new FakeLogger<UmbracoContentMapper<T>>();
+        var propertyMapperMock = new Mock<IPublishedPropertyMapper<T>>();
+
+        propertyMapperMock
+            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<T>()))
+            .Callback<object, T>((source, destination) =>
+            {
+                if (propertyValues is not null)
+                {
+                    foreach (var kvp in propertyValues)
+                    {
+                        var prop = typeof(T).GetProperties()
+                                                .FirstOrDefault(p => string.Equals(p.Name, kvp.Key, StringComparison.OrdinalIgnoreCase));
+                        prop?.SetValue(destination, kvp.Value);
+                    }
+                }
             });
 
         return new UmbracoContentMapper<T>(

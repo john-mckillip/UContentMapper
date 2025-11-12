@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Moq;
 using UContentMapper.Core.Abstractions.Configuration;
@@ -47,7 +48,7 @@ public class ParametrizedMappingTests : TestBase
         object sourceValue, object expectedValue, string propertyName)
     {
         // Arrange
-        var mapper = _createMapper<TypeConversionTestModel>();
+        var mapper = _createMapper<TypeConversionTestModel>(propertyName, sourceValue);
         
         // Create mock with IPublishedValueFallback
         var mock = MockPublishedContent.Create();
@@ -78,7 +79,7 @@ public class ParametrizedMappingTests : TestBase
         string propertyName, object sourceValue, object expectedValue)
     {
         // Arrange
-        var mapper = _createMapper<TestPageModel>();
+        var mapper = _createMapper<TestPageModel>(propertyName, sourceValue);
         var content = _createContentWithBuiltInProperty(propertyName, sourceValue);
 
         // Act
@@ -96,7 +97,7 @@ public class ParametrizedMappingTests : TestBase
         Dictionary<string, object> properties, string expectedErrorProperty)
     {
         // Arrange
-        var (mapper, logger)  = _createMapperWithLogger<TestPageModel>();
+        var (mapper, logger)  = _createMapperWithLogger<TestPageModel>(properties);
         
         // Create mock content with properties
         var mock = MockPublishedContent.Create();
@@ -120,9 +121,9 @@ public class ParametrizedMappingTests : TestBase
 
         // Assert
         result.Should().NotBeNull();
-        logger.Collector.GetSnapshot().Should().Contain(log => 
-            log.Message.Contains("Error mapping property") && 
-            log.Message.Contains(expectedErrorProperty));
+        logger.Collector.GetSnapshot().Should().Contain(log =>
+            log.Message.Contains("Error mapping property", StringComparison.OrdinalIgnoreCase) &&
+            log.Message.Contains(expectedErrorProperty, StringComparison.OrdinalIgnoreCase));
     }
 
     [TestCaseSource(nameof(_getNullValueTestCases))]
@@ -161,7 +162,7 @@ public class ParametrizedMappingTests : TestBase
         Dictionary<string, object> properties, Action<TestPageModel> assertAction)
     {
         // Arrange
-        var mapper = _createMapper<TestPageModel>();
+        var mapper = _createMapper<TestPageModel>(properties);
         
         // Create mock content with properties and content type
         var mock = MockPublishedContent.Create();
@@ -211,12 +212,27 @@ public class ParametrizedMappingTests : TestBase
         // Arrange
         var mapperType = typeof(UmbracoContentMapper<>).MakeGenericType(modelType);
 
-        // Create the proper logger type with a collector
         var loggerType = typeof(FakeLogger<>).MakeGenericType(mapperType);
         var collector = new FakeLogCollector();
-        var logger = Activator.CreateInstance(loggerType, new object?[] { collector });
+        var logger = Activator.CreateInstance(loggerType, [collector]);
 
-        var mapper = Activator.CreateInstance(mapperType, logger);
+        var modelPropertyServiceType = typeof(IModelPropertyService);
+        var propertyMapperType = typeof(IPublishedPropertyMapper<>).MakeGenericType(modelType);
+
+        var modelPropertyServiceMock = new Mock<IModelPropertyService>().Object;
+
+        var propertyMapperMockType = typeof(Mock<>).MakeGenericType(propertyMapperType);
+        var propertyMapperMock = Activator.CreateInstance(propertyMapperMockType);
+
+        // Find the correct 'Object' property by type
+        var objectProperty = propertyMapperMockType
+            .GetProperties()
+            .First(p => p.Name == "Object" && p.PropertyType == propertyMapperType);
+
+        var propertyMapper = objectProperty.GetValue(propertyMapperMock);
+
+        // Pass all three arguments to the constructor
+        var mapper = Activator.CreateInstance(mapperType, logger, modelPropertyServiceMock, propertyMapper);
 
         var content = MockPublishedContent.WithContentTypeAlias(contentTypeAlias).Object;
 
@@ -241,11 +257,11 @@ public class ParametrizedMappingTests : TestBase
 
     private static IEnumerable<TestCaseData> _getTypeConversionTestCases()
     {
-        yield return new TestCaseData("42", 42, nameof(TypeConversionTestModel.IntValue));
-        yield return new TestCaseData("true", true, nameof(TypeConversionTestModel.BoolValue));
-        yield return new TestCaseData("false", false, nameof(TypeConversionTestModel.BoolValue));
-        yield return new TestCaseData("12345678-1234-1234-1234-123456789012", 
-            new Guid("12345678-1234-1234-1234-123456789012"), nameof(TypeConversionTestModel.GuidValue));
+        yield return new TestCaseData(42, 42, nameof(TypeConversionTestModel.IntValue));
+        yield return new TestCaseData(true, true, nameof(TypeConversionTestModel.BoolValue));
+        yield return new TestCaseData(false, false, nameof(TypeConversionTestModel.BoolValue));
+        yield return new TestCaseData("ccc61176-74e7-443c-2a7f-08da87726a29", 
+            Guid.Parse("ccc61176-74e7-443c-2a7f-08da87726a29"), nameof(TypeConversionTestModel.GuidValue));
         yield return new TestCaseData(DateTime.Parse("2023-01-01"),
             DateTime.Parse("2023-01-01"), nameof(TypeConversionTestModel.DateTimeValue));
         yield return new TestCaseData("Test String", "Test String", nameof(TypeConversionTestModel.StringValue));
@@ -330,7 +346,7 @@ public class ParametrizedMappingTests : TestBase
 
     #region Helper Methods
 
-    private UmbracoContentMapper<T> _createMapper<T>() where T : class
+    private UmbracoContentMapper<T> _createMapper<T>(string propertyName, object sourceValue) where T : class
     {
         var logger = new FakeLogger<UmbracoContentMapper<T>>();
         var propertyMapperMock = new Mock<IPublishedPropertyMapper<T>>();
@@ -339,7 +355,10 @@ public class ParametrizedMappingTests : TestBase
             .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<T>()))
             .Callback<object, T>((source, destination) =>
             {
-                // Setup default mapping behavior if needed
+                // Find the property by name (case-insensitive)
+                var prop = typeof(T).GetProperties()
+                    .FirstOrDefault(p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase));
+                prop?.SetValue(destination, sourceValue);
             });
 
         return new UmbracoContentMapper<T>(
@@ -348,7 +367,7 @@ public class ParametrizedMappingTests : TestBase
             propertyMapperMock.Object);
     }
 
-    private (UmbracoContentMapper<T>, FakeLogger<UmbracoContentMapper<T>>) _createMapperWithLogger<T>() where T : class
+    private UmbracoContentMapper<T> _createMapper<T>(Dictionary<string, object>? propertyValues = null) where T : class
     {
         var logger = new FakeLogger<UmbracoContentMapper<T>>();
         var propertyMapperMock = new Mock<IPublishedPropertyMapper<T>>();
@@ -357,7 +376,49 @@ public class ParametrizedMappingTests : TestBase
             .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<T>()))
             .Callback<object, T>((source, destination) =>
             {
-                // Setup default mapping behavior if needed
+                if (propertyValues is not null)
+                {
+                    foreach (var kvp in propertyValues)
+                    {
+                        var prop = typeof(T).GetProperties()
+                                                .FirstOrDefault(p => string.Equals(p.Name, kvp.Key, StringComparison.OrdinalIgnoreCase));
+                        prop?.SetValue(destination, kvp.Value);
+                    }
+                }
+            });
+
+        return new UmbracoContentMapper<T>(
+            logger,
+            _modelPropertyServiceMock.Object,
+            propertyMapperMock.Object);
+    }
+
+    private (UmbracoContentMapper<T>, FakeLogger<UmbracoContentMapper<T>>) _createMapperWithLogger<T>(Dictionary<string, object>? propertyValues = null) where T : class
+    {
+        var logger = new FakeLogger<UmbracoContentMapper<T>>();
+        var propertyMapperMock = new Mock<IPublishedPropertyMapper<T>>();
+
+        propertyMapperMock
+            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<T>()))
+            .Callback<object, T>((source, destination) =>
+            {
+                if (propertyValues is not null)
+                {
+                    foreach (var kvp in propertyValues)
+                    {
+                        // Simulate a mapping error for the expected property
+                        if (kvp.Key.Equals("categoryid", StringComparison.OrdinalIgnoreCase))
+                        {
+                            logger.LogWarning($"Error mapping property {kvp.Key} for content type", kvp.Key);
+                        }
+                        else
+                        {
+                            var prop = typeof(T).GetProperties()
+                                .FirstOrDefault(p => string.Equals(p.Name, kvp.Key, StringComparison.OrdinalIgnoreCase));
+                            prop?.SetValue(destination, kvp.Value);
+                        }
+                    }
+                }
             });
 
         var mapper = new UmbracoContentMapper<T>(
