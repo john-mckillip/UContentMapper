@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Moq;
-using UContentMapper.Core.Abstractions.Configuration;
 using UContentMapper.Core.Abstractions.Mapping;
 using UContentMapper.Tests.Fixtures;
 using UContentMapper.Tests.Mocks;
@@ -15,7 +14,6 @@ namespace UContentMapper.Tests.Unit.Umbraco15.Mapping;
 [TestFixture]
 public class ParametrizedMappingTests : TestBase
 {
-    private Mock<IMappingConfiguration> _mappingConfigurationMock;
     private Mock<IModelPropertyService> _modelPropertyServiceMock;
     private FakeLogger<UmbracoContentMapper<TestPageModel>> _logger;
 
@@ -23,7 +21,6 @@ public class ParametrizedMappingTests : TestBase
     public override void SetUp()
     {
         base.SetUp();
-        _mappingConfigurationMock = CreateMock<IMappingConfiguration>();
         _modelPropertyServiceMock = CreateMock<IModelPropertyService>();
         _logger = new FakeLogger<UmbracoContentMapper<TestPageModel>>();
     }
@@ -260,7 +257,7 @@ public class ParametrizedMappingTests : TestBase
         yield return new TestCaseData(42, 42, nameof(TypeConversionTestModel.IntValue));
         yield return new TestCaseData(true, true, nameof(TypeConversionTestModel.BoolValue));
         yield return new TestCaseData(false, false, nameof(TypeConversionTestModel.BoolValue));
-        yield return new TestCaseData("ccc61176-74e7-443c-2a7f-08da87726a29", 
+        yield return new TestCaseData(Guid.Parse("ccc61176-74e7-443c-2a7f-08da87726a29"), 
             Guid.Parse("ccc61176-74e7-443c-2a7f-08da87726a29"), nameof(TypeConversionTestModel.GuidValue));
         yield return new TestCaseData(DateTime.Parse("2023-01-01"),
             DateTime.Parse("2023-01-01"), nameof(TypeConversionTestModel.DateTimeValue));

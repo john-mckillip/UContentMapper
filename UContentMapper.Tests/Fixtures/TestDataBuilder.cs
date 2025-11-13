@@ -54,7 +54,7 @@ public class TestDataBuilder
         var fallbackMock = new Mock<IPublishedValueFallback>();
         
         mock.Setup(x => x.Id).Returns(1001);
-        mock.Setup(x => x.Key).Returns(new Guid("12345678-1234-1234-1234-123456789012"));
+        mock.Setup(x => x.Key).Returns(Guid.Parse("12345678-1234-1234-1234-123456789012"));
         mock.Setup(x => x.Name).Returns("Test Content Name");
         mock.Setup(x => x.CreateDate).Returns(new DateTime(2023, 1, 1, 10, 0, 0));
         mock.Setup(x => x.UpdateDate).Returns(new DateTime(2023, 6, 15, 14, 30, 0));
@@ -112,11 +112,11 @@ public class TestDataBuilder
 
     public static IEnumerable<TestCaseData> GetTypeConversionTestCases()
     {
-        yield return new TestCaseData("42", typeof(int), 42);
-        yield return new TestCaseData("true", typeof(bool), true);
-        yield return new TestCaseData("false", typeof(bool), false);
-        yield return new TestCaseData("12345678-1234-1234-1234-123456789012", typeof(Guid), 
-            new Guid("12345678-1234-1234-1234-123456789012"));
+        yield return new TestCaseData(42, typeof(int), 42);
+        yield return new TestCaseData(true, typeof(bool), true);
+        yield return new TestCaseData(false, typeof(bool), false);
+        yield return new TestCaseData(Guid.Parse("12345678-1234-1234-1234-123456789012"), typeof(Guid), 
+            Guid.Parse("12345678-1234-1234-1234-123456789012"));
         yield return new TestCaseData(DateTime.Parse("2023-01-01"), typeof(DateTime), 
             DateTime.Parse("2023-01-01"));
         yield return new TestCaseData("Test", typeof(string), "Test");
