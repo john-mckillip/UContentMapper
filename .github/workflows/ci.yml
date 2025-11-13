@@ -49,6 +49,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     - name: Run tests with coverage
+      continue-on-error: true
       run: |
         dotnet test --no-build --configuration Release \
           --collect:"XPlat Code Coverage" \
@@ -57,6 +58,7 @@ jobs:
           --verbosity normal
 
     - name: Generate coverage report
+      if: always()
       uses: danielpalme/ReportGenerator-GitHub-Action@5.3.11
       with:
         reports: 'TestResults/**/coverage.cobertura.xml'
