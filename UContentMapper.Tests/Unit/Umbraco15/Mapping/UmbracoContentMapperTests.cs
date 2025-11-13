@@ -30,6 +30,124 @@ public class UmbracoContentMapperTests : TestBase
         _mapper = _createMapper<TestPageModel>();
     }
 
+    // Add these tests to your existing test class
+
+    [Test]
+    public void Map_WithIgnoredProperty_ShouldNotSetValue()
+    {
+        // Arrange
+        var properties = new Dictionary<string, object>
+    {
+        { "title", "Should Be Ignored" },
+        { "description", "Should Be Set" }
+    };
+
+        var propertyMapperMock = new Mock<IPublishedPropertyMapper<TestPageModel>>();
+        propertyMapperMock
+            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<TestPageModel>()))
+            .Callback<object, TestPageModel>((source, destination) =>
+            {
+                // Simulate ignoring the "title" property
+                var prop = typeof(TestPageModel).GetProperty("Description");
+                prop?.SetValue(destination, properties["description"]);
+            });
+
+        var mapper = new UmbracoContentMapper<TestPageModel>(
+            new FakeLogger<UmbracoContentMapper<TestPageModel>>(),
+            _modelPropertyServiceMock.Object,
+            propertyMapperMock.Object);
+
+        var content = MockPublishedContent.Create().Object;
+
+        // Act
+        var result = mapper.Map(content);
+
+        // Assert
+        result.Title.Should().BeNullOrEmpty();
+        result.Description.Should().Be("Should Be Set");
+    }
+
+    [Test]
+    public void Map_WithCustomConverter_ShouldSetConvertedValue()
+    {
+        // Arrange
+        var propertyMapperMock = new Mock<IPublishedPropertyMapper<TestPageModel>>();
+        propertyMapperMock
+            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<TestPageModel>()))
+            .Callback<object, TestPageModel>((source, destination) =>
+            {
+                // Simulate custom conversion logic
+                destination.Title = "Converted Title";
+            });
+
+        var mapper = new UmbracoContentMapper<TestPageModel>(
+            new FakeLogger<UmbracoContentMapper<TestPageModel>>(),
+            _modelPropertyServiceMock.Object,
+            propertyMapperMock.Object);
+
+        var content = MockPublishedContent.Create().Object;
+
+        // Act
+        var result = mapper.Map(content);
+
+        // Assert
+        result.Title.Should().Be("Converted Title");
+    }
+
+    [Test]
+    public void Map_WithNullContent_ShouldThrowArgumentNullException()
+    {
+        // Arrange
+        var mapper = _createMapper<TestPageModel>();
+
+        // Act
+        Action act = () => mapper.Map(null!);
+
+        // Assert
+        act.Should().Throw<NullReferenceException>();
+    }
+
+    [Test]
+    public void Map_WithContentTypeMismatch_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var content = MockPublishedContent.WithContentTypeAlias("wrongType").Object;
+        var mapper = _createMapper<TestPageModel>();
+
+        // Act
+        Action act = () => mapper.Map(content);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Cannot map object of type*");
+    }
+
+    [Test]
+    public void Map_WithAllPropertiesNull_ShouldSetDefaults()
+    {
+        // Arrange
+        var properties = new Dictionary<string, object>
+    {
+        { "title", null! },
+        { "description", null! },
+        { "categoryid", null! },
+        { "ispublished", null! }
+    };
+
+        _mapper = _createMapper<TestPageModel>(properties);
+
+        var content = MockPublishedContent.Create().Object;
+
+        // Act
+        var result = _mapper.Map(content);
+
+        // Assert
+        result.Title.Should().BeNullOrEmpty();
+        result.Description.Should().BeNullOrEmpty();
+        result.CategoryId.Should().Be(0);
+        result.IsPublished.Should().BeFalse();
+    }
+
     [Test]
     public void Constructor_ShouldInitializeWithDependencies()
     {
