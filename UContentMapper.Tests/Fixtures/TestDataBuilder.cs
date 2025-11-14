@@ -17,8 +17,7 @@ public class TestDataBuilder
     public static IPublishedContent CreatePublishedContentWithProperties()
     {
         var mock = MockPublishedContent.Create();
-        var fallbackMock = new Mock<IPublishedValueFallback>();
-        
+
         var properties = new Dictionary<string, object>
         {
             { "title", "Test Page Title" },
@@ -51,7 +50,6 @@ public class TestDataBuilder
     public static IPublishedContent CreatePublishedContentWithBuiltInProperties()
     {
         var mock = MockPublishedContent.Create();
-        var fallbackMock = new Mock<IPublishedValueFallback>();
         
         mock.Setup(x => x.Id).Returns(1001);
         mock.Setup(x => x.Key).Returns(Guid.Parse("12345678-1234-1234-1234-123456789012"));
@@ -66,10 +64,29 @@ public class TestDataBuilder
         return mock.Object;
     }
 
+    public static IPublishedContent CreatePublishedContentWithEmptyStringContentTypeAlias()
+    {
+        var mock = MockPublishedContent.Create();
+
+        mock.Setup(x => x.ContentType.Alias)
+            .Returns(string.Empty);
+
+        return mock.Object;
+    }
+
+    public static IPublishedElement CreatePublishedElementWithEmptyStringContentTypeAlias()
+    {
+        var mock = MockPublishedElement.Create();
+
+        mock.Setup(x => x.ContentType.Alias)
+            .Returns(string.Empty);
+
+        return mock.Object;
+    }
+
     public static IPublishedContent CreatePublishedContentForTypeConversion()
     {
         var mock = MockPublishedContent.Create();
-        var fallbackMock = new Mock<IPublishedValueFallback>();
         var publishedPropertyTypeMock = new Mock<IPublishedPropertyType>();
 
         var properties = new Dictionary<string, object>
@@ -95,8 +112,16 @@ public class TestDataBuilder
         {
             var propertyMock = new Mock<IPublishedProperty>();
             propertyMock.Setup(x => x.Alias).Returns(prop.Key);
-            propertyMock.Setup(x => x.HasValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value != null);
-            propertyMock.Setup(x => x.GetValue(It.IsAny<string>(), It.IsAny<string>())).Returns(prop.Value);
+            propertyMock.
+                Setup(x => x.HasValue(
+                    It.IsAny<string>(), 
+                    It.IsAny<string>())).
+                Returns(prop.Value is not null);
+            propertyMock
+                .Setup(x => x.GetValue(
+                    It.IsAny<string>(), 
+                    It.IsAny<string>()))
+                .Returns(prop.Value);
             
             mock.Setup(x => x.GetProperty(prop.Key)).Returns(propertyMock.Object);
             mock.Setup(x => x.ContentType.GetPropertyType(prop.Key)).Returns(publishedPropertyTypeMock.Object);

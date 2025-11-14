@@ -59,6 +59,34 @@ public class FullMappingIntegrationTests : TestBase
     }
 
     [Test]
+    public void EndToEndMapping_CanMap_ShouldReturnCorrectValue()
+    {
+        var mapper = _serviceProvider.GetRequiredService<IContentMapper<TestPageModel>>();
+
+        // IPublishedContent
+        var content = TestDataBuilder.CreatePublishedContentWithBuiltInProperties();
+
+        var canMap = mapper.CanMap(content);
+
+        canMap.Should().BeTrue();
+
+        // Get IPublishedContent with empty string for content type alias
+        content = TestDataBuilder.CreatePublishedContentWithEmptyStringContentTypeAlias();
+
+        canMap = mapper.CanMap(content);
+
+        canMap.Should().BeFalse();
+
+        // IPublishedElement
+
+        var element = TestDataBuilder.CreatePublishedElementWithEmptyStringContentTypeAlias();
+
+        canMap = mapper.CanMap(element);
+
+        canMap.Should().BeFalse();
+    }
+
+    [Test]
     public void EndToEndMapping_WithCustomProperties_ShouldMapSuccessfully()
     {
         // Arrange

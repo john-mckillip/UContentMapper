@@ -30,21 +30,21 @@ public class UmbracoContentMapperTests : TestBase
         _mapper = _createMapper<TestPageModel>();
     }
 
-    // Add these tests to your existing test class
-
     [Test]
     public void Map_WithIgnoredProperty_ShouldNotSetValue()
     {
         // Arrange
         var properties = new Dictionary<string, object>
-    {
-        { "title", "Should Be Ignored" },
-        { "description", "Should Be Set" }
-    };
+        {
+            { "title", "Should Be Ignored" },
+            { "description", "Should Be Set" }
+        };
 
         var propertyMapperMock = new Mock<IPublishedPropertyMapper<TestPageModel>>();
         propertyMapperMock
-            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<TestPageModel>()))
+            .Setup(x => x.MapProperties(
+                It.IsAny<object>(), 
+                It.IsAny<TestPageModel>()))
             .Callback<object, TestPageModel>((source, destination) =>
             {
                 // Simulate ignoring the "title" property
@@ -73,7 +73,9 @@ public class UmbracoContentMapperTests : TestBase
         // Arrange
         var propertyMapperMock = new Mock<IPublishedPropertyMapper<TestPageModel>>();
         propertyMapperMock
-            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<TestPageModel>()))
+            .Setup(x => x.MapProperties(
+                It.IsAny<object>(), 
+                It.IsAny<TestPageModel>()))
             .Callback<object, TestPageModel>((source, destination) =>
             {
                 // Simulate custom conversion logic
@@ -127,12 +129,12 @@ public class UmbracoContentMapperTests : TestBase
     {
         // Arrange
         var properties = new Dictionary<string, object>
-    {
-        { "title", null! },
-        { "description", null! },
-        { "categoryid", null! },
-        { "ispublished", null! }
-    };
+        {
+            { "title", null! },
+            { "description", null! },
+            { "categoryid", null! },
+            { "ispublished", null! }
+        };
 
         _mapper = _createMapper<TestPageModel>(properties);
 
@@ -391,6 +393,7 @@ public class UmbracoContentMapperTests : TestBase
         result.IsPublished.Should().BeFalse();
     }
 
+
     [TestCaseSource(typeof(TestDataBuilder), nameof(TestDataBuilder.GetTypeConversionTestCases))]
     public void Map_ShouldConvertTypes(object sourceValue, Type targetType, object expectedValue)
     {
@@ -537,7 +540,9 @@ public class UmbracoContentMapperTests : TestBase
         var propertyMapperMock = new Mock<IPublishedPropertyMapper<T>>();
 
         propertyMapperMock
-            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<T>()))
+            .Setup(x => x.MapProperties(
+                It.IsAny<object>(), 
+                It.IsAny<T>()))
             .Callback<object, T>((source, destination) =>
             {
                 if (propertyValues is not null)
@@ -563,7 +568,9 @@ public class UmbracoContentMapperTests : TestBase
         var propertyMapperMock = new Mock<IPublishedPropertyMapper<T>>();
 
         propertyMapperMock
-            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<T>()))
+            .Setup(x => x.MapProperties(
+                It.IsAny<object>(), 
+                It.IsAny<T>()))
             .Callback<object, T>((source, destination) =>
             {
                 // Find the property by name (case-insensitive)
@@ -589,7 +596,9 @@ public class UmbracoContentMapperTests : TestBase
         var propertyMapperMock = new Mock<IPublishedPropertyMapper<T>>();
 
         propertyMapperMock
-            .Setup(x => x.MapProperties(It.IsAny<object>(), It.IsAny<T>()))
+            .Setup(x => x.MapProperties(
+                It.IsAny<object>(), 
+                It.IsAny<T>()))
             .Callback<object, T>((source, destination) =>
             {
                 if (propertyValues is not null)
