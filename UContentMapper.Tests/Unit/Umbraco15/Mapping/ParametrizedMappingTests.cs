@@ -14,14 +14,12 @@ namespace UContentMapper.Tests.Unit.Umbraco15.Mapping;
 [TestFixture]
 public class ParametrizedMappingTests : TestBase
 {
-    private Mock<IModelPropertyService> _modelPropertyServiceMock;
     private FakeLogger<UmbracoContentMapper<TestPageModel>> _logger;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
-        _modelPropertyServiceMock = CreateMock<IModelPropertyService>();
         _logger = new FakeLogger<UmbracoContentMapper<TestPageModel>>();
     }
 
@@ -216,8 +214,6 @@ public class ParametrizedMappingTests : TestBase
         var modelPropertyServiceType = typeof(IModelPropertyService);
         var propertyMapperType = typeof(IPublishedPropertyMapper<>).MakeGenericType(modelType);
 
-        var modelPropertyServiceMock = new Mock<IModelPropertyService>().Object;
-
         var propertyMapperMockType = typeof(Mock<>).MakeGenericType(propertyMapperType);
         var propertyMapperMock = Activator.CreateInstance(propertyMapperMockType);
 
@@ -229,7 +225,7 @@ public class ParametrizedMappingTests : TestBase
         var propertyMapper = objectProperty.GetValue(propertyMapperMock);
 
         // Pass all three arguments to the constructor
-        var mapper = Activator.CreateInstance(mapperType, logger, modelPropertyServiceMock, propertyMapper);
+        var mapper = Activator.CreateInstance(mapperType, logger, propertyMapper);
 
         var content = MockPublishedContent.WithContentTypeAlias(contentTypeAlias).Object;
 
@@ -360,7 +356,6 @@ public class ParametrizedMappingTests : TestBase
 
         return new UmbracoContentMapper<T>(
             logger,
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
     }
 
@@ -386,7 +381,6 @@ public class ParametrizedMappingTests : TestBase
 
         return new UmbracoContentMapper<T>(
             logger,
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
     }
 
@@ -420,7 +414,6 @@ public class ParametrizedMappingTests : TestBase
 
         var mapper = new UmbracoContentMapper<T>(
             logger,
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
 
         return (mapper, logger);
@@ -440,7 +433,6 @@ public class ParametrizedMappingTests : TestBase
 
         return new UmbracoContentMapper<T>(
             logger,
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
     }
 

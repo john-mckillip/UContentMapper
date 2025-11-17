@@ -11,14 +11,12 @@ namespace UContentMapper.Umbraco15.Mapping
     /// </summary>
     public class UmbracoContentMapper<TModel>(
         ILogger<UmbracoContentMapper<TModel>> logger,
-        IModelPropertyService modelPropertyService,
         IPublishedPropertyMapper<TModel> propertyMapper) : IContentMapper<TModel> where TModel : class
     {
         private readonly ILogger<UmbracoContentMapper<TModel>> _logger = logger;
         private readonly MapperConfigurationAttribute? _attribute = typeof(TModel)
                 .GetCustomAttributes(typeof(MapperConfigurationAttribute), true)
                 .FirstOrDefault() as MapperConfigurationAttribute;
-        private readonly IModelPropertyService _modelPropertyService = modelPropertyService;
         private readonly IPublishedPropertyMapper<TModel> _propertyMapper = propertyMapper;
 
         public bool CanMap(object source)

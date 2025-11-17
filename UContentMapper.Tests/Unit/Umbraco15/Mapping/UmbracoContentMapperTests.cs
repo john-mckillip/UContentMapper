@@ -54,7 +54,6 @@ public class UmbracoContentMapperTests : TestBase
 
         var mapper = new UmbracoContentMapper<TestPageModel>(
             new FakeLogger<UmbracoContentMapper<TestPageModel>>(),
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
 
         var content = MockPublishedContent.Create().Object;
@@ -84,7 +83,6 @@ public class UmbracoContentMapperTests : TestBase
 
         var mapper = new UmbracoContentMapper<TestPageModel>(
             new FakeLogger<UmbracoContentMapper<TestPageModel>>(),
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
 
         var content = MockPublishedContent.Create().Object;
@@ -530,7 +528,6 @@ public class UmbracoContentMapperTests : TestBase
 
         return new UmbracoContentMapper<T>(
             logger,
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
     }
 
@@ -558,7 +555,6 @@ public class UmbracoContentMapperTests : TestBase
 
         return new UmbracoContentMapper<T>(
             logger,
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
     }
 
@@ -586,7 +582,6 @@ public class UmbracoContentMapperTests : TestBase
 
         return new UmbracoContentMapper<T>(
             logger,
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
     }
 
@@ -622,7 +617,6 @@ public class UmbracoContentMapperTests : TestBase
 
         var mapper = new UmbracoContentMapper<T>(
             logger,
-            _modelPropertyServiceMock.Object,
             propertyMapperMock.Object);
 
         return (mapper, logger);

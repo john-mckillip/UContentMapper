@@ -28,7 +28,6 @@ namespace UContentMapper.Umbraco15.Mapping
                 return value;
             }
 
-            // Handle Umbraco-specific types first
             // Rich text editors
             if (targetType == typeof(IHtmlContent) && valueType.Equals(typeof(HtmlEncodedString)))
             {

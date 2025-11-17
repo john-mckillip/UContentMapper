@@ -40,6 +40,8 @@ namespace UContentMapper.Umbraco15.Mapping
             _ => false
         };
 
+        #region Helper Methods
+
         private void _mapPublishedContentProperties(IPublishedContent content, TModel model, List<PropertyInfo> properties)
         {
             foreach (var property in properties)
@@ -49,8 +51,9 @@ namespace UContentMapper.Umbraco15.Mapping
                     var propertyAlias = property.Name.ToLowerInvariant();
 
                     // Try to map built-in properties first
-                    if (_mapBuiltInProperty(content, model, property))
+                    if (IsBuiltInProperty(property.Name))
                     {
+                        _mapBuiltInPublishedContentProperty(content, model, property);
                         continue;
                     }
 
@@ -80,6 +83,13 @@ namespace UContentMapper.Umbraco15.Mapping
                 {
                     var propertyAlias = property.Name.ToLowerInvariant();
 
+                    // Try to map built-in properties first
+                    if (IsBuiltInProperty(property.Name))
+                    {
+                        _mapBuiltInPublishedElementProperty(element, model, property);
+                        continue;
+                    }
+
                     if (element.HasProperty(propertyAlias))
                     {
                         var value = element.GetProperty(propertyAlias)?.GetValue() ?? null;
@@ -97,7 +107,27 @@ namespace UContentMapper.Umbraco15.Mapping
             }
         }
 
-        private bool _mapBuiltInProperty(IPublishedContent content, TModel model, PropertyInfo property)
+        private bool _mapBuiltInPublishedElementProperty(IPublishedElement element, TModel model,  PropertyInfo property)
+        {
+            var propertyName = property.Name;
+
+            object? value = propertyName switch
+            {
+                "Key" => element.Key,
+                "ContentTypeAlias" => element.ContentType.Alias,
+                _ => null
+            };
+
+            if (value is not null)
+            {
+                _setPropertyValue(model, property, value);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool _mapBuiltInPublishedContentProperty(IPublishedContent content, TModel model, PropertyInfo property)
         {
             var propertyName = property.Name;
 
@@ -135,5 +165,7 @@ namespace UContentMapper.Umbraco15.Mapping
                 property.SetValue(model, convertedValue);
             }
         }
+
+        #endregion
     }
 }
