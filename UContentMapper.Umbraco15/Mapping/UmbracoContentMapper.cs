@@ -23,8 +23,8 @@ namespace UContentMapper.Umbraco15.Mapping
         {
             return source switch
             {
-                IPublishedContent content => CanMapPublishedContent(content),
-                IPublishedElement element => CanMapPublishedElement(element),
+                IPublishedContent content => _canMapPublishedContent(content),
+                IPublishedElement element => _canMapPublishedElement(element),
                 _ => false
             };
         }
@@ -55,7 +55,9 @@ namespace UContentMapper.Umbraco15.Mapping
             }
         }
 
-        private bool CanMapPublishedContent(IPublishedContent content)
+        #region Helper Methods 
+
+        private bool _canMapPublishedContent(IPublishedContent content)
         {
             if (string.IsNullOrEmpty(content.ContentType.Alias))
             {
@@ -67,10 +69,10 @@ namespace UContentMapper.Umbraco15.Mapping
                 return true;
             }
 
-            return IsSourceTypeValid(content) && IsContentTypeAliasValid(content.ContentType.Alias);
+            return _isSourceTypeValid(content) && _isContentTypeAliasValid(content.ContentType.Alias);
         }
 
-        private bool CanMapPublishedElement(IPublishedElement element)
+        private bool _canMapPublishedElement(IPublishedElement element)
         {
             if (string.IsNullOrEmpty(element.ContentType.Alias))
             {
@@ -82,10 +84,10 @@ namespace UContentMapper.Umbraco15.Mapping
                 return true;
             }
 
-            return IsSourceTypeValid(element) && IsContentTypeAliasValid(element.ContentType.Alias);
+            return _isSourceTypeValid(element) && _isContentTypeAliasValid(element.ContentType.Alias);
         }
 
-        private bool IsSourceTypeValid(object source)
+        private bool _isSourceTypeValid(object source)
         {
             var sourceType = source.GetType();
             return _attribute!.SourceType == sourceType ||
@@ -93,7 +95,7 @@ namespace UContentMapper.Umbraco15.Mapping
                    _attribute.SourceType == typeof(IPublishedElement);
         }
 
-        private bool IsContentTypeAliasValid(string contentTypeAlias)
+        private bool _isContentTypeAliasValid(string contentTypeAlias)
         {
             if (string.IsNullOrWhiteSpace(_attribute!.ContentTypeAlias))
             {
@@ -107,5 +109,7 @@ namespace UContentMapper.Umbraco15.Mapping
 
             return contentTypeAlias == _attribute.ContentTypeAlias;
         }
+
+        #endregion
     }
 }
