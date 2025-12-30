@@ -107,7 +107,7 @@ namespace UContentMapper.Umbraco15.Mapping
             }
         }
 
-        private bool _mapBuiltInPublishedElementProperty(IPublishedElement element, TModel model,  PropertyInfo property)
+        private void _mapBuiltInPublishedElementProperty(IPublishedElement element, TModel model,  PropertyInfo property)
         {
             var propertyName = property.Name;
 
@@ -121,10 +121,7 @@ namespace UContentMapper.Umbraco15.Mapping
             if (value is not null)
             {
                 _setPropertyValue(model, property, value);
-                return true;
             }
-
-            return false;
         }
 
         private bool _mapBuiltInPublishedContentProperty(IPublishedContent content, TModel model, PropertyInfo property)
