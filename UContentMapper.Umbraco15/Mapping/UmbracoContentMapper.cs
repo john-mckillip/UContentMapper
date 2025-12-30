@@ -21,60 +21,12 @@ namespace UContentMapper.Umbraco15.Mapping
 
         public bool CanMap(object source)
         {
-            if (source is IPublishedContent content)
+            return source switch
             {
-                if (string.IsNullOrEmpty(content.ContentType.Alias))
-                {
-                    return false;
-                }
-
-                // If we have a content type alias specified in the attribute, check it matches
-                if (_attribute is not null)
-                {
-                    if (_attribute.SourceType != source.GetType() &&
-                        _attribute.SourceType != typeof(IPublishedContent))
-                    {
-                        return false;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(_attribute.ContentTypeAlias) &&
-                        _attribute.ContentTypeAlias is not "*" &&
-                        content.ContentType.Alias != _attribute.ContentTypeAlias)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            if (source is IPublishedElement element)
-            {
-                if (string.IsNullOrEmpty(element.ContentType.Alias)) 
-                {
-                    return false;
-                }
-
-                if (_attribute is not null)
-                {
-                    if (_attribute.SourceType != source.GetType() &&
-                        _attribute.SourceType != typeof(IPublishedElement))
-                    {
-                        return false;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(_attribute.ContentTypeAlias) &&
-                        _attribute.ContentTypeAlias is not "*" &&
-                        element.ContentType.Alias != _attribute.ContentTypeAlias)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            return false;
+                IPublishedContent content => CanMapPublishedContent(content),
+                IPublishedElement element => CanMapPublishedElement(element),
+                _ => false
+            };
         }
 
         public TModel Map(object source)
@@ -101,6 +53,59 @@ namespace UContentMapper.Umbraco15.Mapping
 
                 throw new MappingException($"Error mapping {sourceType} to {destinationType}.");
             }
+        }
+
+        private bool CanMapPublishedContent(IPublishedContent content)
+        {
+            if (string.IsNullOrEmpty(content.ContentType.Alias))
+            {
+                return false;
+            }
+
+            if (_attribute is null)
+            {
+                return true;
+            }
+
+            return IsSourceTypeValid(content) && IsContentTypeAliasValid(content.ContentType.Alias);
+        }
+
+        private bool CanMapPublishedElement(IPublishedElement element)
+        {
+            if (string.IsNullOrEmpty(element.ContentType.Alias))
+            {
+                return false;
+            }
+
+            if (_attribute is null)
+            {
+                return true;
+            }
+
+            return IsSourceTypeValid(element) && IsContentTypeAliasValid(element.ContentType.Alias);
+        }
+
+        private bool IsSourceTypeValid(object source)
+        {
+            var sourceType = source.GetType();
+            return _attribute!.SourceType == sourceType ||
+                   _attribute.SourceType == typeof(IPublishedContent) ||
+                   _attribute.SourceType == typeof(IPublishedElement);
+        }
+
+        private bool IsContentTypeAliasValid(string contentTypeAlias)
+        {
+            if (string.IsNullOrWhiteSpace(_attribute!.ContentTypeAlias))
+            {
+                return true;
+            }
+
+            if (_attribute.ContentTypeAlias == "*")
+            {
+                return true;
+            }
+
+            return contentTypeAlias == _attribute.ContentTypeAlias;
         }
     }
 }
